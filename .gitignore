@@ -1,0 +1,4 @@
+*.o
+*.d
+campusguard
+pattern_tests
