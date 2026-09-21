@@ -1,6 +1,8 @@
 #include "LegacyDoorController.h"
 
-#include <string>
+#include <iomanip>
+#include <sstream>
+#include <stdexcept>
 
 #include "Log.h"
 
@@ -13,19 +15,27 @@ void LegacyDoorController::installPanel(int panelNumber) {
 }
 
 void LegacyDoorController::setPanelOnline(int panelNumber, bool online) {
-    online_[panelNumber] = online;
+    std::map<int, bool>::iterator it = online_.find(panelNumber);
+    if (it == online_.end()) {
+        throw std::invalid_argument("DX-9 panel " + std::to_string(panelNumber) + " is not installed");
+    }
+    it->second = online;
 }
 
 int LegacyDoorController::transmit(int panelNumber, char opcode, int clearance) {
     int code = RC_OK;
-    if (online_.count(panelNumber) == 0) {
-        code = RC_UNKNOWN_PANEL;
-    } else if (online_[panelNumber] == false) {
-        code = RC_PANEL_OFFLINE;
-    } else if (opcode != 'L' && opcode != 'U' && opcode != 'R') {
+    if (opcode != 'L' && opcode != 'U' && opcode != 'R') {
         code = RC_BAD_OPCODE;
+    } else {
+        std::map<int, bool>::const_iterator it = online_.find(panelNumber);
+        if (it == online_.end()) {
+            code = RC_UNKNOWN_PANEL;
+        } else if (!it->second) {
+            code = RC_PANEL_OFFLINE;
+        }
     }
-    std::string frame = ">> PNL#" + std::to_string(panelNumber) + " OP:" + std::string(1, opcode) + " CLR:" + std::to_string(clearance) + " << RC:" + std::to_string(code);
-    Log::line("Legacy DX-9", frame);
+    std::ostringstream frame;
+    frame << ">> PNL#" << panelNumber << " OP:" << opcode << " CLR:" << clearance << " << RC:" << std::setw(2) << std::setfill('0') << code;
+    Log::line("Legacy DX-9", frame.str());
     return code;
 }
