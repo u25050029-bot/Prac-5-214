@@ -1,73 +1,44 @@
 #include "Types.h"
 
+#include <cstddef>
+
+namespace {
+
+template <typename E, std::size_t N>
+std::string lookup(E value, const char* const (&names)[N]) {
+    std::size_t index = static_cast<std::size_t>(value);
+    return index < N ? std::string(names[index]) : std::string("Unknown");
+}
+
+}
+
 std::string toString(IncidentType value) {
-    switch (value) {
-    case IncidentType::Fire:
-        return "Fire";
-    case IncidentType::Medical:
-        return "Medical";
-    case IncidentType::Intrusion:
-        return "Intrusion";
-    }
-    return "Unknown";
+    static const char* const names[] = {"Fire", "Medical", "Intrusion"};
+    return lookup(value, names);
 }
 
 std::string toString(IncidentStatus value) {
-    switch (value) {
-    case IncidentStatus::Reported:
-        return "Reported";
-    case IncidentStatus::Dispatched:
-        return "Dispatched";
-    case IncidentStatus::Contained:
-        return "Contained";
-    case IncidentStatus::Resolved:
-        return "Resolved";
-    }
-    return "Unknown";
+    static const char* const names[] = {"Reported", "Dispatched", "Contained", "Resolved"};
+    return lookup(value, names);
 }
 
 std::string toString(Severity value) {
-    switch (value) {
-    case Severity::Low:
-        return "Low";
-    case Severity::High:
-        return "High";
-    case Severity::Critical:
-        return "High";
-    }
-    return "Unknown";
+    static const char* const names[] = {"Low", "High", "Critical"};
+    return lookup(value, names);
 }
 
 std::string toString(UnitType value) {
-    switch (value) {
-    case UnitType::Security:
-        return "Security";
-    case UnitType::Medical:
-        return "Medical";
-    case UnitType::Facilities:
-        return "Facilities";
-    }
-    return "Unknown";
+    static const char* const names[] = {"Security", "Medical", "Facilities"};
+    return lookup(value, names);
 }
 
 std::string toString(DoorState value) {
-    switch (value) {
-    case DoorState::Unlocked:
-        return "UNLOCKED";
-    case DoorState::Locked:
-        return "LOCKED";
-    case DoorState::Restricted:
-        return "RESTRICTED";
-    }
-    return "Unknown";
+    static const char* const names[] = {"UNLOCKED", "LOCKED", "RESTRICTED"};
+    return lookup(value, names);
 }
 
 std::string toString(AccessLevel value) {
-    switch (value) {
-    case AccessLevel::StaffOnly:
-        return "StaffOnly";
-    case AccessLevel::RespondersOnly:
-        return "RespondersOnly";
-    }
-    return "Unknown";
+    static const char* const names[] = {"StaffOnly", "RespondersOnly"};
+    return lookup(value, names);
 }
+
