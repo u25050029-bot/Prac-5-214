@@ -1,5 +1,9 @@
 #include "AreaComponent.h"
 
+#include <stdexcept>
+
+#include "AreaDepthFirstIterator.h"
+
 AreaComponent::AreaComponent(const std::string& name, const std::string& kind)
     : name_(name), kind_(kind), parent_(nullptr) {}
 
@@ -14,10 +18,11 @@ const std::string& AreaComponent::getKind() const {
 }
 
 int AreaComponent::depth() const {
-    if (parent_ == nullptr) {
-        return 0;
+    int result = 0;
+    for (const AreaComponent* node = parent_; node != nullptr; node = node->parent_) {
+        ++result;
     }
-    return parent_->depth() + 1;
+    return result;
 }
 
 std::size_t AreaComponent::childCount() const {
@@ -25,5 +30,9 @@ std::size_t AreaComponent::childCount() const {
 }
 
 AreaComponent* AreaComponent::childAt(std::size_t) const {
-    return nullptr;
+    throw std::out_of_range(kind_ + " '" + name_ + "' has no child components");
+}
+
+std::unique_ptr<Iterator<AreaComponent*>> AreaComponent::createIterator() {
+    return std::unique_ptr<Iterator<AreaComponent*>>(new AreaDepthFirstIterator(this));
 }

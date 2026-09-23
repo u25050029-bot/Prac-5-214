@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#include "Aggregate.h"
+#include "Iterator.h"
 #include "Types.h"
 
 struct OperationResult {
@@ -14,14 +16,12 @@ struct OperationResult {
     std::vector<std::string> failed;
 };
 
-class AreaComponent {
+class AreaComponent : public Aggregate<AreaComponent*> {
     friend class AreaGroup;
 
 public:
     AreaComponent(const std::string& name, const std::string& kind);
-    virtual ~AreaComponent();
-    AreaComponent(const AreaComponent&) = delete;
-    AreaComponent& operator=(const AreaComponent&) = delete;
+    ~AreaComponent() override;
 
     const std::string& getName() const;
     const std::string& getKind() const;
@@ -35,6 +35,8 @@ public:
     virtual std::string statusText() const = 0;
     virtual std::size_t childCount() const;
     virtual AreaComponent* childAt(std::size_t index) const;
+
+    std::unique_ptr<Iterator<AreaComponent*>> createIterator() override;
 
 private:
     std::string name_;
