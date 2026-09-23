@@ -30,6 +30,7 @@ public:
 
 private:
     void adopt(std::unique_ptr<AreaComponent> child);
+    void announce(const std::string& operation) const;
 
     std::vector<std::unique_ptr<AreaComponent>> children_;
 };

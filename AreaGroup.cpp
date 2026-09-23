@@ -9,31 +9,38 @@ AreaGroup::AreaGroup(const std::string& name, const std::string& kind) : AreaCom
 AreaGroup::~AreaGroup() {}
 
 void AreaGroup::adopt(std::unique_ptr<AreaComponent> child) {
+    if (!child) {
+        throw std::invalid_argument("cannot add an empty component to " + getName());
+    }
     child->parent_ = this;
     children_.push_back(std::move(child));
 }
 
+void AreaGroup::announce(const std::string& operation) const {
+    Log::line("Composite", getKind() + " '" + getName() + "': " + operation + " forwarded to " + std::to_string(children_.size()) + " child component(s)");
+}
+
 void AreaGroup::lock(OperationResult& result) {
-    Log::line("Composite", getKind() + " '" + getName() + "': " + "lock" + " forwarded to " + std::to_string(children_.size()) + " child component(s)");
+    announce("lock");
     Log::Scope scope;
-    for (std::size_t i = 0; i < children_.size(); ++i) {
-        children_[i]->lock(result);
+    for (const auto& child : children_) {
+        child->lock(result);
     }
 }
 
 void AreaGroup::unlock(OperationResult& result) {
-    Log::line("Composite", getKind() + " '" + getName() + "': " + "unlock" + " forwarded to " + std::to_string(children_.size()) + " child component(s)");
+    announce("unlock");
     Log::Scope scope;
-    for (std::size_t i = 0; i < children_.size(); ++i) {
-        children_[i]->unlock(result);
+    for (const auto& child : children_) {
+        child->unlock(result);
     }
 }
 
 void AreaGroup::restrictAccess(AccessLevel level, OperationResult& result) {
-    Log::line("Composite", getKind() + " '" + getName() + "': " + "restrict(" + toString(level) + ")" + " forwarded to " + std::to_string(children_.size()) + " child component(s)");
+    announce("restrict(" + toString(level) + ")");
     Log::Scope scope;
-    for (std::size_t i = 0; i < children_.size(); ++i) {
-        children_[i]->restrictAccess(level, result);
+    for (const auto& child : children_) {
+        child->restrictAccess(level, result);
     }
 }
 
@@ -48,9 +55,7 @@ int AreaGroup::doorCount() const {
 int AreaGroup::securedCount() const {
     int total = 0;
     for (const auto& child : children_) {
-        if (child->securedCount() > 0) {
-            total += child->doorCount();
-        }
+        total += child->securedCount();
     }
     return total;
 }

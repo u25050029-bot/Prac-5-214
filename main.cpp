@@ -6,7 +6,7 @@
 
 #include "AccessPoint.h"
 #include "AreaGroup.h"
-#include "DebugDump.h"
+#include "Iterator.h"
 #include "LegacyAccessAdapter.h"
 #include "LegacyDoorController.h"
 #include "Log.h"
@@ -58,13 +58,24 @@ std::unique_ptr<AreaGroup> buildCampus(LegacyAccessAdapter& gateway) {
     return campus;
 }
 
-AreaComponent* findChild(AreaComponent* node, const std::string& name) {
-    for (std::size_t i = 0; i < node->childCount(); ++i) {
-        if (node->childAt(i)->getName() == name) {
-            return node->childAt(i);
+AreaComponent* findArea(AreaComponent& root, const std::string& name) {
+    std::unique_ptr<Iterator<AreaComponent*>> it = root.createIterator();
+    for (it->first(); !it->isDone(); it->next()) {
+        if (it->currentItem()->getName() == name) {
+            return it->currentItem();
         }
     }
     return nullptr;
+}
+
+void printReport(AreaComponent& area) {
+    const int baseDepth = area.depth();
+    std::unique_ptr<Iterator<AreaComponent*>> it = area.createIterator();
+    for (it->first(); !it->isDone(); it->next()) {
+        AreaComponent* current = it->currentItem();
+        std::string indent(static_cast<std::size_t>(current->depth() - baseDepth) * 2, ' ');
+        Log::line("Area", indent + current->getKind() + " " + current->getName() + ": " + current->statusText());
+    }
 }
 
 }
@@ -74,8 +85,8 @@ int main() {
         std::unique_ptr<LegacyAccessAdapter> gateway = buildGateway();
         std::unique_ptr<AreaGroup> campus = buildCampus(*gateway);
 
-        Log::banner("Composite check: one call locks a whole building");
-        AreaComponent* engineering = findChild(campus.get(), "Engineering");
+        Log::banner("Iterator check: depth-first search and report");
+        AreaComponent* engineering = findArea(*campus, "Engineering");
         OperationResult result;
         {
             Log::Scope scope;
@@ -83,9 +94,15 @@ int main() {
         }
         Log::line("Campus", std::to_string(result.attempted - static_cast<int>(result.failed.size())) + "/" + std::to_string(result.attempted) + " doors confirmed");
 
+        Log::step("Restrict Library Level 1 to staff");
+        OperationResult night;
+        findArea(*campus, "Library Level 1")->restrictAccess(AccessLevel::StaffOnly, night);
+
+        Log::step("Unknown area lookup");
+        Log::line("Campus", findArea(*campus, "Chemistry Block") == nullptr ? "Chemistry Block is not part of the campus model" : "unexpected match");
+
         Log::step("Campus status");
-        DebugDump::tree(campus.get());
-        DebugDump::doors(engineering);
+        printReport(*campus);
     } catch (const std::exception& ex) {
         std::cerr << "CampusGuard terminated: " << ex.what() << "\n";
         return 1;
