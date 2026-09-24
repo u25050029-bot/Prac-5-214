@@ -6,10 +6,14 @@
 
 #include "AccessPoint.h"
 #include "AreaGroup.h"
+#include "Incident.h"
+#include "IncidentRegistry.h"
 #include "Iterator.h"
 #include "LegacyAccessAdapter.h"
 #include "LegacyDoorController.h"
 #include "Log.h"
+#include "ResponseUnit.h"
+#include "UnitRoster.h"
 
 namespace {
 
@@ -58,6 +62,14 @@ std::unique_ptr<AreaGroup> buildCampus(LegacyAccessAdapter& gateway) {
     return campus;
 }
 
+void buildRoster(UnitRoster& roster) {
+    roster.add(std::unique_ptr<ResponseUnit>(new ResponseUnit("Alpha", UnitType::Security)));
+    roster.add(std::unique_ptr<ResponseUnit>(new ResponseUnit("Bravo", UnitType::Security)));
+    roster.add(std::unique_ptr<ResponseUnit>(new ResponseUnit("Medic-1", UnitType::Medical)));
+    roster.add(std::unique_ptr<ResponseUnit>(new ResponseUnit("Medic-2", UnitType::Medical)));
+    roster.add(std::unique_ptr<ResponseUnit>(new ResponseUnit("Delta", UnitType::Facilities)));
+}
+
 AreaComponent* findArea(AreaComponent& root, const std::string& name) {
     std::unique_ptr<Iterator<AreaComponent*>> it = root.createIterator();
     for (it->first(); !it->isDone(); it->next()) {
@@ -68,13 +80,22 @@ AreaComponent* findArea(AreaComponent& root, const std::string& name) {
     return nullptr;
 }
 
-void printReport(AreaComponent& area) {
-    const int baseDepth = area.depth();
-    std::unique_ptr<Iterator<AreaComponent*>> it = area.createIterator();
+void debugIncident(Incident* incident) {
+    Log::line("debug", "incident id=" + std::to_string(incident->getId()));
+    Log::line("debug", "  type=" + toString(incident->getType()));
+    Log::line("debug", "  severity=" + toString(incident->getSeverity()));
+    Log::line("debug", "  status=" + toString(incident->getStatus()));
+    Log::line("debug", "  location=" + incident->getLocation()->getName());
+    Log::line("debug", "  units=" + std::to_string(incident->getUnits().size()));
+    for (std::size_t i = 0; i < incident->getUnits().size(); ++i) {
+        Log::line("debug", "    unit " + incident->getUnits()[i]->getCallsign());
+    }
+}
+
+void printRoster(UnitRoster& roster) {
+    std::unique_ptr<Iterator<ResponseUnit*>> it = roster.createIterator();
     for (it->first(); !it->isDone(); it->next()) {
-        AreaComponent* current = it->currentItem();
-        std::string indent(static_cast<std::size_t>(current->depth() - baseDepth) * 2, ' ');
-        Log::line("Area", indent + current->getKind() + " " + current->getName() + ": " + current->statusText());
+        Log::line("Unit", it->currentItem()->statusText());
     }
 }
 
@@ -84,25 +105,37 @@ int main() {
     try {
         std::unique_ptr<LegacyAccessAdapter> gateway = buildGateway();
         std::unique_ptr<AreaGroup> campus = buildCampus(*gateway);
+        UnitRoster roster;
+        buildRoster(roster);
+        IncidentRegistry registry;
 
-        Log::banner("Iterator check: depth-first search and report");
-        AreaComponent* engineering = findArea(*campus, "Engineering");
-        OperationResult result;
-        {
-            Log::Scope scope;
-            engineering->lock(result);
+        Log::banner("Incident lifecycle check");
+        Incident* intrusion = registry.report(IncidentType::Intrusion, Severity::High, findArea(*campus, "Engineering"), "Forced-entry alarm at the server room");
+
+        Log::step("Pick the first available security unit");
+        std::unique_ptr<Iterator<ResponseUnit*>> candidates = roster.createAvailableIterator(UnitType::Security);
+        candidates->first();
+        ResponseUnit* unit = candidates->currentItem();
+        unit->assign(intrusion);
+        intrusion->attachUnit(unit);
+        registry.markDispatched(intrusion);
+        debugIncident(intrusion);
+        printRoster(roster);
+
+        Log::step("Contain and resolve");
+        registry.contain(intrusion);
+        registry.resolve(intrusion);
+        debugIncident(intrusion);
+        unit->release();
+        intrusion->detachUnit(unit);
+
+        Log::step("Invalid request: resolve twice");
+        try {
+            registry.resolve(intrusion);
+        } catch (const std::exception& ex) {
+            Log::line("Operator", std::string("Request rejected: ") + ex.what());
         }
-        Log::line("Campus", std::to_string(result.attempted - static_cast<int>(result.failed.size())) + "/" + std::to_string(result.attempted) + " doors confirmed");
-
-        Log::step("Restrict Library Level 1 to staff");
-        OperationResult night;
-        findArea(*campus, "Library Level 1")->restrictAccess(AccessLevel::StaffOnly, night);
-
-        Log::step("Unknown area lookup");
-        Log::line("Campus", findArea(*campus, "Chemistry Block") == nullptr ? "Chemistry Block is not part of the campus model" : "unexpected match");
-
-        Log::step("Campus status");
-        printReport(*campus);
+        registry.printIncidents();
     } catch (const std::exception& ex) {
         std::cerr << "CampusGuard terminated: " << ex.what() << "\n";
         return 1;
