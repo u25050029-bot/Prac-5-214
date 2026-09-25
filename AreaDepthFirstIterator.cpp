@@ -21,13 +21,11 @@ void AreaDepthFirstIterator::next() {
     if (pending_.empty()) {
         throw std::out_of_range("area iterator advanced past the end");
     }
-    AreaComponent* visited = pending_.front();
-    pending_.erase(pending_.begin());
-    std::vector<AreaComponent*> children;
-    for (std::size_t i = 0; i < visited->childCount(); ++i) {
-        children.push_back(visited->childAt(i));
+    AreaComponent* visited = pending_.back();
+    pending_.pop_back();
+    for (std::size_t i = visited->childCount(); i > 0; --i) {
+        pending_.push_back(visited->childAt(i - 1));
     }
-    pending_.insert(pending_.begin(), children.begin(), children.end());
 }
 
 bool AreaDepthFirstIterator::isDone() const {
@@ -38,5 +36,5 @@ AreaComponent* AreaDepthFirstIterator::currentItem() const {
     if (pending_.empty()) {
         throw std::out_of_range("area iterator has no current item");
     }
-    return pending_.front();
+    return pending_.back();
 }

@@ -27,6 +27,7 @@ void AccessPoint::restrictAccess(AccessLevel level, OperationResult& result) {
     ++result.attempted;
     if (gateway_.restrictDoor(getName(), level)) {
         state_ = DoorState::Restricted;
+        level_ = level;
     } else {
         result.failed.push_back(getName());
     }
@@ -41,13 +42,8 @@ int AccessPoint::securedCount() const {
 }
 
 std::string AccessPoint::statusText() const {
-    std::string text;
-    if (state_ == DoorState::Unlocked) {
-        text = "UNLOCKED";
-    } else if (state_ == DoorState::Locked) {
-        text = "LOCKED";
-    } else {
-        text = "RESTRICTED (" + toString(level_) + ")";
+    if (state_ == DoorState::Restricted) {
+        return toString(state_) + " (" + toString(level_) + ")";
     }
-    return text;
+    return toString(state_);
 }
