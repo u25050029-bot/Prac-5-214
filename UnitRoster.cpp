@@ -1,5 +1,7 @@
 #include "UnitRoster.h"
 
+#include <stdexcept>
+
 #include "UnitRosterIterators.h"
 
 UnitRoster::UnitRoster() {}
@@ -7,6 +9,9 @@ UnitRoster::UnitRoster() {}
 UnitRoster::~UnitRoster() {}
 
 ResponseUnit* UnitRoster::add(std::unique_ptr<ResponseUnit> unit) {
+    if (!unit) {
+        throw std::invalid_argument("cannot add an empty unit to the roster");
+    }
     units_.push_back(std::move(unit));
     return units_.back().get();
 }
@@ -16,6 +21,9 @@ std::size_t UnitRoster::size() const {
 }
 
 ResponseUnit* UnitRoster::at(std::size_t index) const {
+    if (index >= units_.size()) {
+        throw std::out_of_range("roster index out of range");
+    }
     return units_[index].get();
 }
 
@@ -25,23 +33,4 @@ std::unique_ptr<Iterator<ResponseUnit*>> UnitRoster::createIterator() {
 
 std::unique_ptr<Iterator<ResponseUnit*>> UnitRoster::createAvailableIterator(UnitType type) {
     return std::unique_ptr<Iterator<ResponseUnit*>>(new AvailableUnitIterator(*this, type));
-}
-
-ResponseUnit* UnitRoster::findByCallsign(const std::string& callsign) const {
-    for (std::size_t i = 0; i < units_.size(); ++i) {
-        if (units_[i]->getCallsign() == callsign) {
-            return units_[i].get();
-        }
-    }
-    return nullptr;
-}
-
-int UnitRoster::countOfType(UnitType type) const {
-    int total = 0;
-    for (std::size_t i = 0; i < units_.size(); ++i) {
-        if (units_[i]->getType() == type) {
-            ++total;
-        }
-    }
-    return total;
 }

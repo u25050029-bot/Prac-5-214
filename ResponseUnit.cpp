@@ -27,6 +27,9 @@ void ResponseUnit::assign(Incident* incident) {
     if (incident == nullptr) {
         throw std::invalid_argument(callsign_ + " cannot be assigned to an empty incident");
     }
+    if (assignment_ != nullptr) {
+        throw std::logic_error(callsign_ + " is already assigned to incident " + assignment_->label());
+    }
     assignment_ = incident;
 }
 

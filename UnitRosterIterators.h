@@ -2,7 +2,6 @@
 #define CAMPUSGUARD_UNITROSTERITERATORS_H
 
 #include <cstddef>
-#include <vector>
 
 #include "Iterator.h"
 #include "ResponseUnit.h"
@@ -34,7 +33,10 @@ public:
     ResponseUnit* currentItem() const override;
 
 private:
-    std::vector<ResponseUnit*> matches_;
+    void skipUnsuitable();
+
+    const UnitRoster& roster_;
+    UnitType type_;
     std::size_t index_;
 };
 

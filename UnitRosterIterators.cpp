@@ -28,18 +28,16 @@ ResponseUnit* RosterIterator::currentItem() const {
     return roster_.at(index_);
 }
 
-AvailableUnitIterator::AvailableUnitIterator(const UnitRoster& roster, UnitType type) : index_(0) {
-    for (std::size_t i = 0; i < roster.size(); ++i) {
-        if (roster.at(i)->getType() == type) {
-            matches_.push_back(roster.at(i));
-        }
-    }
+AvailableUnitIterator::AvailableUnitIterator(const UnitRoster& roster, UnitType type)
+    : roster_(roster), type_(type), index_(0) {
+    skipUnsuitable();
 }
 
 AvailableUnitIterator::~AvailableUnitIterator() {}
 
 void AvailableUnitIterator::first() {
     index_ = 0;
+    skipUnsuitable();
 }
 
 void AvailableUnitIterator::next() {
@@ -47,15 +45,26 @@ void AvailableUnitIterator::next() {
         throw std::out_of_range("available-unit iterator advanced past the end");
     }
     ++index_;
+    skipUnsuitable();
 }
 
 bool AvailableUnitIterator::isDone() const {
-    return index_ >= matches_.size();
+    return index_ >= roster_.size();
 }
 
 ResponseUnit* AvailableUnitIterator::currentItem() const {
     if (isDone()) {
         throw std::out_of_range("available-unit iterator has no current item");
     }
-    return matches_[index_];
+    return roster_.at(index_);
+}
+
+void AvailableUnitIterator::skipUnsuitable() {
+    while (index_ < roster_.size()) {
+        ResponseUnit* unit = roster_.at(index_);
+        if (unit->getType() == type_ && unit->isAvailable()) {
+            return;
+        }
+        ++index_;
+    }
 }
