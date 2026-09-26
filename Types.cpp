@@ -47,3 +47,7 @@ std::string toString(AlertLevel value) {
     return lookup(value, names);
 }
 
+std::string toString(EventType value) {
+    static const char* const names[] = {"UnitDispatched", "UnitRecalled", "IncidentEscalated", "IncidentResolved", "AreaSecured", "AccessFailure", "EvacuationIssued"};
+    return lookup(value, names);
+}

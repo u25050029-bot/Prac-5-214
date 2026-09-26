@@ -10,6 +10,7 @@ enum class UnitType { Security, Medical, Facilities };
 enum class DoorState { Unlocked, Locked, Restricted };
 enum class AccessLevel { StaffOnly, RespondersOnly };
 enum class AlertLevel { Advisory, Warning, Emergency };
+enum class EventType { UnitDispatched, UnitRecalled, IncidentEscalated, IncidentResolved, AreaSecured, AccessFailure, EvacuationIssued };
 
 std::string toString(IncidentType value);
 std::string toString(IncidentStatus value);
@@ -18,5 +19,6 @@ std::string toString(UnitType value);
 std::string toString(DoorState value);
 std::string toString(AccessLevel value);
 std::string toString(AlertLevel value);
+std::string toString(EventType value);
 
 #endif
