@@ -21,9 +21,6 @@ int main() {
 
         Log::step("2. Operator dispatches security");
         dispatch.dispatchAvailable(intrusion, UnitType::Security);
-        registry.markDispatched(intrusion);
-        access.secureArea(intrusion->getLocation(), intrusion);
-        alerts.notifyArea(intrusion->getLocation(), "Lockdown confirmed: shelter in place and keep doors closed");
 
         Log::step("3. Operator warns the rest of campus");
         alerts.activateAlert(access.findArea("Engineering"), AlertLevel::Warning, "Intruder reported; avoid the Engineering building", intrusion);
@@ -31,13 +28,9 @@ int main() {
         Log::step("4. Operator reviews the Engineering access state");
         access.printAccessReport(access.findArea("Engineering"));
 
-        Log::step("5. Intruder detained: contain, resolve, then stand every service down by hand");
+        Log::step("5. Intruder detained: contain and resolve (the coordinator stands everything down)");
         registry.contain(intrusion);
         registry.resolve(intrusion);
-        dispatch.releaseUnits(intrusion);
-        access.releaseArea(intrusion->getLocation(), intrusion);
-        alerts.clearIncident(intrusion);
-        alerts.notifyArea(intrusion->getLocation(), "ALL CLEAR for incident " + intrusion->label());
 
         Log::step("Invalid request: a second resolve of the same incident");
         try {

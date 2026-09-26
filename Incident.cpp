@@ -1,6 +1,9 @@
 #include "Incident.h"
 
+#include <algorithm>
+#include <set>
 #include <stdexcept>
+#include <utility>
 
 #include "AreaComponent.h"
 #include "ResponseUnit.h"
@@ -68,24 +71,13 @@ void Incident::attachUnit(ResponseUnit* unit) {
     if (unit == nullptr) {
         throw std::invalid_argument("cannot attach an empty unit");
     }
-    bool present = false;
-    for (std::size_t i = 0; i < units_.size(); ++i) {
-        if (units_[i] == unit) {
-            present = true;
-        }
-    }
-    if (!present) {
+    if (std::find(units_.begin(), units_.end(), unit) == units_.end()) {
         units_.push_back(unit);
     }
 }
 
 void Incident::detachUnit(ResponseUnit* unit) {
-    for (std::size_t i = 0; i < units_.size(); ++i) {
-        if (units_[i] == unit) {
-            units_.erase(units_.begin() + i);
-            return;
-        }
-    }
+    units_.erase(std::remove(units_.begin(), units_.end(), unit), units_.end());
 }
 
 std::string Incident::label() const {
@@ -101,17 +93,11 @@ std::string Incident::summary() const {
 }
 
 bool Incident::isAllowed(IncidentStatus from, IncidentStatus to) {
-    if (from == IncidentStatus::Reported && to == IncidentStatus::Dispatched) {
-        return true;
-    }
-    if (from == IncidentStatus::Dispatched && to == IncidentStatus::Contained) {
-        return true;
-    }
-    if (from == IncidentStatus::Dispatched && to == IncidentStatus::Resolved) {
-        return true;
-    }
-    if (from == IncidentStatus::Contained && to == IncidentStatus::Resolved) {
-        return true;
-    }
-    return false;
+    static const std::set<std::pair<IncidentStatus, IncidentStatus>> transitions = {
+        {IncidentStatus::Reported, IncidentStatus::Dispatched},
+        {IncidentStatus::Dispatched, IncidentStatus::Reported},
+        {IncidentStatus::Dispatched, IncidentStatus::Contained},
+        {IncidentStatus::Dispatched, IncidentStatus::Resolved},
+        {IncidentStatus::Contained, IncidentStatus::Resolved}};
+    return transitions.count(std::make_pair(from, to)) > 0;
 }

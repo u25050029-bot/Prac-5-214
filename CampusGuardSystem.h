@@ -7,6 +7,7 @@
 #include "AlertService.h"
 #include "AreaGroup.h"
 #include "DispatchService.h"
+#include "EmergencyCoordinator.h"
 #include "IncidentRegistry.h"
 #include "LegacyAccessAdapter.h"
 #include "UnitRoster.h"
@@ -35,6 +36,7 @@ private:
     DispatchService dispatch_;
     AccessControlService access_;
     AlertService alerts_;
+    EmergencyCoordinator coordinator_;
 };
 
 #endif

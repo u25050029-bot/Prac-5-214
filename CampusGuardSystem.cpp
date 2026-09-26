@@ -1,8 +1,23 @@
 #include "CampusGuardSystem.h"
 
+#include <string>
+
 #include "AccessPoint.h"
 #include "LegacyDoorController.h"
 #include "ResponseUnit.h"
+
+namespace {
+
+AreaGroup* addGroup(AreaGroup& parent, const std::string& name, const std::string& kind) {
+    return parent.add(std::unique_ptr<AreaGroup>(new AreaGroup(name, kind)));
+}
+
+void addDoor(AreaGroup& floor, LegacyAccessAdapter& gateway, const std::string& doorId, int panelNumber) {
+    floor.add(std::unique_ptr<AccessPoint>(new AccessPoint(doorId, gateway)));
+    gateway.enrolDoor(doorId, panelNumber);
+}
+
+}
 
 CampusGuardSystem::CampusGuardSystem()
     : gateway_(buildGateway()),
@@ -11,7 +26,8 @@ CampusGuardSystem::CampusGuardSystem()
       registry_(),
       dispatch_(roster_),
       access_(*campus_),
-      alerts_() {
+      alerts_(),
+      coordinator_(registry_, dispatch_, access_, alerts_) {
     buildRoster(roster_);
 }
 
@@ -35,15 +51,10 @@ AlertService& CampusGuardSystem::alerts() {
 
 std::unique_ptr<LegacyAccessAdapter> CampusGuardSystem::buildGateway() {
     std::unique_ptr<LegacyDoorController> controller(new LegacyDoorController());
-    controller->installPanel(101);
-    controller->installPanel(102);
-    controller->installPanel(103);
-    controller->installPanel(104);
-    controller->installPanel(201);
-    controller->installPanel(202);
-    controller->installPanel(203);
-    controller->installPanel(301);
-    controller->installPanel(302);
+    const int panels[] = {101, 102, 103, 104, 201, 202, 203, 301, 302};
+    for (int panel : panels) {
+        controller->installPanel(panel);
+    }
     controller->setPanelOnline(104, false);
     return std::unique_ptr<LegacyAccessAdapter>(new LegacyAccessAdapter(std::move(controller)));
 }
@@ -51,34 +62,25 @@ std::unique_ptr<LegacyAccessAdapter> CampusGuardSystem::buildGateway() {
 std::unique_ptr<AreaGroup> CampusGuardSystem::buildCampus(LegacyAccessAdapter& gateway) {
     std::unique_ptr<AreaGroup> campus(new AreaGroup("Hatfield Campus", "Campus"));
 
-    AreaGroup* engineering = campus->add(std::unique_ptr<AreaGroup>(new AreaGroup("Engineering", "Building")));
-    AreaGroup* engineeringGround = engineering->add(std::unique_ptr<AreaGroup>(new AreaGroup("Engineering Ground", "Floor")));
-    engineeringGround->add(std::unique_ptr<AccessPoint>(new AccessPoint("EB-G-MAIN", gateway)));
-    gateway.enrolDoor("EB-G-MAIN", 101);
-    engineeringGround->add(std::unique_ptr<AccessPoint>(new AccessPoint("EB-G-EAST", gateway)));
-    gateway.enrolDoor("EB-G-EAST", 102);
-    AreaGroup* engineeringLevel1 = engineering->add(std::unique_ptr<AreaGroup>(new AreaGroup("Engineering Level 1", "Floor")));
-    engineeringLevel1->add(std::unique_ptr<AccessPoint>(new AccessPoint("EB-1-LAB", gateway)));
-    gateway.enrolDoor("EB-1-LAB", 103);
-    engineeringLevel1->add(std::unique_ptr<AccessPoint>(new AccessPoint("EB-1-SERVER", gateway)));
-    gateway.enrolDoor("EB-1-SERVER", 104);
+    AreaGroup* engineering = addGroup(*campus, "Engineering", "Building");
+    AreaGroup* engineeringGround = addGroup(*engineering, "Engineering Ground", "Floor");
+    addDoor(*engineeringGround, gateway, "EB-G-MAIN", 101);
+    addDoor(*engineeringGround, gateway, "EB-G-EAST", 102);
+    AreaGroup* engineeringLevel1 = addGroup(*engineering, "Engineering Level 1", "Floor");
+    addDoor(*engineeringLevel1, gateway, "EB-1-LAB", 103);
+    addDoor(*engineeringLevel1, gateway, "EB-1-SERVER", 104);
 
-    AreaGroup* library = campus->add(std::unique_ptr<AreaGroup>(new AreaGroup("Library", "Building")));
-    AreaGroup* libraryGround = library->add(std::unique_ptr<AreaGroup>(new AreaGroup("Library Ground", "Floor")));
-    libraryGround->add(std::unique_ptr<AccessPoint>(new AccessPoint("ML-G-MAIN", gateway)));
-    gateway.enrolDoor("ML-G-MAIN", 201);
-    libraryGround->add(std::unique_ptr<AccessPoint>(new AccessPoint("ML-G-FIRE", gateway)));
-    gateway.enrolDoor("ML-G-FIRE", 202);
-    AreaGroup* libraryLevel1 = library->add(std::unique_ptr<AreaGroup>(new AreaGroup("Library Level 1", "Floor")));
-    libraryLevel1->add(std::unique_ptr<AccessPoint>(new AccessPoint("ML-1-ARCHIVE", gateway)));
-    gateway.enrolDoor("ML-1-ARCHIVE", 203);
+    AreaGroup* library = addGroup(*campus, "Library", "Building");
+    AreaGroup* libraryGround = addGroup(*library, "Library Ground", "Floor");
+    addDoor(*libraryGround, gateway, "ML-G-MAIN", 201);
+    addDoor(*libraryGround, gateway, "ML-G-FIRE", 202);
+    AreaGroup* libraryLevel1 = addGroup(*library, "Library Level 1", "Floor");
+    addDoor(*libraryLevel1, gateway, "ML-1-ARCHIVE", 203);
 
-    AreaGroup* studentCentre = campus->add(std::unique_ptr<AreaGroup>(new AreaGroup("Student Centre", "Building")));
-    AreaGroup* studentCentreGround = studentCentre->add(std::unique_ptr<AreaGroup>(new AreaGroup("Student Centre Ground", "Floor")));
-    studentCentreGround->add(std::unique_ptr<AccessPoint>(new AccessPoint("SC-G-MAIN", gateway)));
-    gateway.enrolDoor("SC-G-MAIN", 301);
-    studentCentreGround->add(std::unique_ptr<AccessPoint>(new AccessPoint("SC-G-CLINIC", gateway)));
-    gateway.enrolDoor("SC-G-CLINIC", 302);
+    AreaGroup* studentCentre = addGroup(*campus, "Student Centre", "Building");
+    AreaGroup* studentCentreGround = addGroup(*studentCentre, "Student Centre Ground", "Floor");
+    addDoor(*studentCentreGround, gateway, "SC-G-MAIN", 301);
+    addDoor(*studentCentreGround, gateway, "SC-G-CLINIC", 302);
 
     return campus;
 }
