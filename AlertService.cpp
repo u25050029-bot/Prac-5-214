@@ -4,16 +4,13 @@
 #include <stdexcept>
 
 #include "AreaComponent.h"
+#include "CoordinationEvent.h"
 #include "Incident.h"
 #include "Log.h"
 
-AlertService::AlertService() : componentName_("AlertService"), nextAlertId_(1) {}
+AlertService::AlertService() : ResponseComponent("AlertService"), nextAlertId_(1) {}
 
 AlertService::~AlertService() {}
-
-const std::string& AlertService::getComponentName() const {
-    return componentName_;
-}
 
 int AlertService::activateAlert(AreaComponent* area, AlertLevel level, const std::string& message, Incident* incident) {
     requireArea(area);
@@ -39,6 +36,7 @@ void AlertService::issueEvacuation(AreaComponent* area, Incident* incident) {
     Evacuation evacuation = {area, incident};
     evacuations_.push_back(evacuation);
     Log::line(getComponentName(), "EVACUATION ordered for " + area->getName() + ": all occupants leave by the nearest exit");
+    changed(CoordinationEvent(EventType::EvacuationIssued, incident, area, nullptr));
 }
 
 void AlertService::endEvacuation(AreaComponent* area) {

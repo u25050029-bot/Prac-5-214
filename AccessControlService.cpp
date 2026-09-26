@@ -4,38 +4,26 @@
 #include <stdexcept>
 
 #include "AreaComponent.h"
-#include "Incident.h"
+#include "CoordinationEvent.h"
 #include "Iterator.h"
 #include "Log.h"
 
-namespace {
-
-void reportNode(AreaComponent* node, int indent) {
-    Log::line("Area", std::string(static_cast<std::size_t>(indent) * 2, ' ') + node->getKind() + " " + node->getName() + ": " + node->statusText());
-    for (std::size_t i = 0; i < node->childCount(); ++i) {
-        reportNode(node->childAt(i), indent + 1);
-    }
-}
-
-}
-
 AccessControlService::AccessControlService(AreaComponent& campusRoot)
-    : componentName_("AccessControl"), campusRoot_(campusRoot) {}
+    : ResponseComponent("AccessControl"), campusRoot_(campusRoot) {}
 
 AccessControlService::~AccessControlService() {}
 
-const std::string& AccessControlService::getComponentName() const {
-    return componentName_;
-}
-
 AreaComponent* AccessControlService::findArea(const std::string& name) const {
     std::unique_ptr<Iterator<AreaComponent*>> it = campusRoot_.createIterator();
+    int visited = 0;
     for (it->first(); !it->isDone(); it->next()) {
+        ++visited;
         if (it->currentItem()->getName() == name) {
+            Log::line(getComponentName(), "AreaDepthFirstIterator found '" + name + "' after visiting " + std::to_string(visited) + " component(s)");
             return it->currentItem();
         }
     }
-    Log::line(getComponentName(), "no area named '" + name + "'");
+    Log::line(getComponentName(), "AreaDepthFirstIterator visited all " + std::to_string(visited) + " component(s); no area named '" + name + "'");
     return nullptr;
 }
 
@@ -47,21 +35,7 @@ bool AccessControlService::secureArea(AreaComponent* area, Incident* context) {
         Log::Scope scope;
         area->lock(result);
     }
-    int confirmed = result.attempted - static_cast<int>(result.failed.size());
-    Log::line(getComponentName(), "lock of '" + area->getName() + "': " + std::to_string(confirmed) + "/" + std::to_string(result.attempted) + " doors confirmed by gateway");
-    if (!result.failed.empty()) {
-        std::string doors;
-        for (std::size_t i = 0; i < result.failed.size(); ++i) {
-            if (i > 0) {
-                doors += ", ";
-            }
-            doors += result.failed[i];
-        }
-        Log::line(getComponentName(), "lock failed at " + doors + (context != nullptr ? " during incident " + context->label() : std::string()));
-        return false;
-    }
-    Log::line(getComponentName(), "'" + area->getName() + "' secured");
-    return true;
+    return conclude("lock", area, context, result, true);
 }
 
 bool AccessControlService::restrictArea(AreaComponent* area, AccessLevel level, Incident* context) {
@@ -72,20 +46,7 @@ bool AccessControlService::restrictArea(AreaComponent* area, AccessLevel level, 
         Log::Scope scope;
         area->restrictAccess(level, result);
     }
-    int confirmed = result.attempted - static_cast<int>(result.failed.size());
-    Log::line(getComponentName(), "restrict of '" + area->getName() + "': " + std::to_string(confirmed) + "/" + std::to_string(result.attempted) + " doors confirmed by gateway");
-    if (!result.failed.empty()) {
-        std::string doors;
-        for (std::size_t i = 0; i < result.failed.size(); ++i) {
-            if (i > 0) {
-                doors += ", ";
-            }
-            doors += result.failed[i];
-        }
-        Log::line(getComponentName(), "restrict failed at " + doors + (context != nullptr ? " during incident " + context->label() : std::string()));
-        return false;
-    }
-    return true;
+    return conclude("restrict", area, context, result, false);
 }
 
 bool AccessControlService::releaseArea(AreaComponent* area, Incident* context) {
@@ -96,31 +57,41 @@ bool AccessControlService::releaseArea(AreaComponent* area, Incident* context) {
         Log::Scope scope;
         area->unlock(result);
     }
-    int confirmed = result.attempted - static_cast<int>(result.failed.size());
-    Log::line(getComponentName(), "unlock of '" + area->getName() + "': " + std::to_string(confirmed) + "/" + std::to_string(result.attempted) + " doors confirmed by gateway");
-    if (!result.failed.empty()) {
-        std::string doors;
-        for (std::size_t i = 0; i < result.failed.size(); ++i) {
-            if (i > 0) {
-                doors += ", ";
-            }
-            doors += result.failed[i];
-        }
-        Log::line(getComponentName(), "unlock failed at " + doors + (context != nullptr ? " during incident " + context->label() : std::string()));
-        return false;
-    }
-    return true;
+    return conclude("unlock", area, context, result, false);
 }
 
 void AccessControlService::printAccessReport(AreaComponent* area) const {
     requireArea(area);
-    Log::line(getComponentName(), "Access report for '" + area->getName() + "':");
+    Log::line(getComponentName(), "Access report for '" + area->getName() + "' (AreaDepthFirstIterator):");
     Log::Scope scope;
-    reportNode(area, 0);
+    const int baseDepth = area->depth();
+    std::unique_ptr<Iterator<AreaComponent*>> it = area->createIterator();
+    for (it->first(); !it->isDone(); it->next()) {
+        AreaComponent* current = it->currentItem();
+        std::string indent(static_cast<std::size_t>(current->depth() - baseDepth) * 2, ' ');
+        Log::line("Area", indent + current->getKind() + " " + current->getName() + ": " + current->statusText());
+    }
 }
 
 void AccessControlService::printCampusReport() const {
     printAccessReport(&campusRoot_);
+}
+
+bool AccessControlService::conclude(const std::string& action, AreaComponent* area, Incident* context, const OperationResult& result, bool announceSecured) {
+    int confirmed = result.attempted - static_cast<int>(result.failed.size());
+    Log::line(getComponentName(), action + " of '" + area->getName() + "': " + std::to_string(confirmed) + "/" + std::to_string(result.attempted) + " doors confirmed by gateway");
+    if (!result.failed.empty()) {
+        std::string doors;
+        for (const std::string& door : result.failed) {
+            doors += (doors.empty() ? "" : ", ") + door;
+        }
+        changed(CoordinationEvent(EventType::AccessFailure, context, area, nullptr, action + " failed at " + doors));
+        return false;
+    }
+    if (announceSecured) {
+        changed(CoordinationEvent(EventType::AreaSecured, context, area, nullptr));
+    }
+    return true;
 }
 
 void AccessControlService::requireArea(const AreaComponent* area) {

@@ -3,20 +3,17 @@
 
 #include <string>
 
+#include "ResponseComponent.h"
 #include "Types.h"
 
 class AreaComponent;
 class Incident;
 struct OperationResult;
 
-class AccessControlService {
+class AccessControlService : public ResponseComponent {
 public:
     explicit AccessControlService(AreaComponent& campusRoot);
-    ~AccessControlService();
-    AccessControlService(const AccessControlService&) = delete;
-    AccessControlService& operator=(const AccessControlService&) = delete;
-
-    const std::string& getComponentName() const;
+    ~AccessControlService() override;
 
     AreaComponent* findArea(const std::string& name) const;
     bool secureArea(AreaComponent* area, Incident* context);
@@ -26,7 +23,7 @@ public:
     void printCampusReport() const;
 
 private:
-    std::string componentName_;
+    bool conclude(const std::string& action, AreaComponent* area, Incident* context, const OperationResult& result, bool announceSecured);
     static void requireArea(const AreaComponent* area);
 
     AreaComponent& campusRoot_;

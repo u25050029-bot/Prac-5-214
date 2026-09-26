@@ -17,5 +17,7 @@ const std::string& ResponseComponent::getComponentName() const {
 }
 
 void ResponseComponent::changed(const CoordinationEvent& event) {
-    mediator_->notify(*this, event);
+    if (mediator_ != nullptr) {
+        mediator_->notify(*this, event);
+    }
 }

@@ -4,19 +4,16 @@
 #include <string>
 #include <vector>
 
+#include "ResponseComponent.h"
 #include "Types.h"
 
 class AreaComponent;
 class Incident;
 
-class AlertService {
+class AlertService : public ResponseComponent {
 public:
     AlertService();
-    ~AlertService();
-    AlertService(const AlertService&) = delete;
-    AlertService& operator=(const AlertService&) = delete;
-
-    const std::string& getComponentName() const;
+    ~AlertService() override;
 
     int activateAlert(AreaComponent* area, AlertLevel level, const std::string& message, Incident* incident);
     void deactivateAlert(int alertId);
@@ -27,7 +24,6 @@ public:
     void printStatus() const;
 
 private:
-    std::string componentName_;
     struct ActiveAlert {
         int id;
         AreaComponent* area;

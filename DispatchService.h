@@ -1,22 +1,17 @@
 #ifndef CAMPUSGUARD_DISPATCHSERVICE_H
 #define CAMPUSGUARD_DISPATCHSERVICE_H
 
-#include <string>
-
+#include "ResponseComponent.h"
 #include "Types.h"
 
 class Incident;
 class ResponseUnit;
 class UnitRoster;
 
-class DispatchService {
+class DispatchService : public ResponseComponent {
 public:
     explicit DispatchService(UnitRoster& roster);
-    ~DispatchService();
-    DispatchService(const DispatchService&) = delete;
-    DispatchService& operator=(const DispatchService&) = delete;
-
-    const std::string& getComponentName() const;
+    ~DispatchService() override;
 
     ResponseUnit* dispatchAvailable(Incident* incident, UnitType type);
     void recall(ResponseUnit* unit, Incident* incident);
@@ -24,7 +19,6 @@ public:
     void printRoster() const;
 
 private:
-    std::string componentName_;
     UnitRoster& roster_;
 };
 

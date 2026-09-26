@@ -4,23 +4,23 @@
 #include <stdexcept>
 #include <vector>
 
+#include "CoordinationEvent.h"
 #include "Incident.h"
 #include "Iterator.h"
 #include "Log.h"
 #include "ResponseUnit.h"
 #include "UnitRoster.h"
 
-DispatchService::DispatchService(UnitRoster& roster) : componentName_("DispatchService"), roster_(roster) {}
+DispatchService::DispatchService(UnitRoster& roster) : ResponseComponent("DispatchService"), roster_(roster) {}
 
 DispatchService::~DispatchService() {}
-
-const std::string& DispatchService::getComponentName() const {
-    return componentName_;
-}
 
 ResponseUnit* DispatchService::dispatchAvailable(Incident* incident, UnitType type) {
     if (incident == nullptr) {
         throw std::invalid_argument("no incident selected for dispatch");
+    }
+    if (!incident->isActive()) {
+        throw std::logic_error("incident " + incident->label() + " is " + toString(incident->getStatus()) + "; dispatch refused");
     }
     std::unique_ptr<Iterator<ResponseUnit*>> candidates = roster_.createAvailableIterator(type);
     candidates->first();
@@ -30,10 +30,8 @@ ResponseUnit* DispatchService::dispatchAvailable(Incident* incident, UnitType ty
     ResponseUnit* unit = candidates->currentItem();
     unit->assign(incident);
     incident->attachUnit(unit);
-    for (std::size_t i = 0; i < roster_.size(); ++i) {
-        Log::line("debug", "roster[" + std::to_string(i) + "] " + roster_.at(i)->statusText());
-    }
     Log::line(getComponentName(), "AvailableUnitIterator selected " + unit->getCallsign() + "; dispatched to incident " + incident->label());
+    changed(CoordinationEvent(EventType::UnitDispatched, incident, incident->getLocation(), unit));
     return unit;
 }
 
@@ -44,13 +42,15 @@ void DispatchService::recall(ResponseUnit* unit, Incident* incident) {
     unit->release();
     incident->detachUnit(unit);
     Log::line(getComponentName(), unit->getCallsign() + " recalled from incident " + incident->label());
+    changed(CoordinationEvent(EventType::UnitRecalled, incident, incident->getLocation(), unit));
 }
 
 void DispatchService::releaseUnits(Incident* incident) {
     if (incident == nullptr) {
         throw std::invalid_argument("no incident selected for unit release");
     }
-    for (ResponseUnit* unit : incident->getUnits()) {
+    std::vector<ResponseUnit*> units = incident->getUnits();
+    for (ResponseUnit* unit : units) {
         unit->release();
         incident->detachUnit(unit);
         Log::line(getComponentName(), unit->getCallsign() + " released and available again");

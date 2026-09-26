@@ -1,21 +1,19 @@
 #ifndef CAMPUSGUARD_INCIDENTREGISTRY_H
 #define CAMPUSGUARD_INCIDENTREGISTRY_H
 
+#include <memory>
 #include <string>
 #include <vector>
 
 #include "Incident.h"
+#include "ResponseComponent.h"
 
 class AreaComponent;
 
-class IncidentRegistry {
+class IncidentRegistry : public ResponseComponent {
 public:
     IncidentRegistry();
-    ~IncidentRegistry();
-    IncidentRegistry(const IncidentRegistry&) = delete;
-    IncidentRegistry& operator=(const IncidentRegistry&) = delete;
-
-    const std::string& getComponentName() const;
+    ~IncidentRegistry() override;
 
     Incident* report(IncidentType type, Severity severity, AreaComponent* location, const std::string& description);
     void markDispatched(Incident* incident);
@@ -26,10 +24,10 @@ public:
     void printIncidents() const;
 
 private:
-    std::string componentName_;
+    void transition(Incident* incident, IncidentStatus next);
     static void require(const Incident* incident);
 
-    std::vector<Incident*> incidents_;
+    std::vector<std::unique_ptr<Incident>> incidents_;
     int nextId_;
 };
 
