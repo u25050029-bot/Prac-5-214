@@ -42,3 +42,8 @@ std::string toString(AccessLevel value) {
     return lookup(value, names);
 }
 
+std::string toString(AlertLevel value) {
+    static const char* const names[] = {"Advisory", "Warning", "Emergency"};
+    return lookup(value, names);
+}
+
