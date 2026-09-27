@@ -10,6 +10,7 @@
 #include "EmergencyCoordinator.h"
 #include "IncidentRegistry.h"
 #include "LegacyAccessAdapter.h"
+#include "OperatorConsole.h"
 #include "UnitRoster.h"
 
 class CampusGuardSystem {
@@ -23,6 +24,7 @@ public:
     DispatchService& dispatch();
     AccessControlService& access();
     AlertService& alerts();
+    OperatorConsole& console();
 
 private:
     static std::unique_ptr<LegacyAccessAdapter> buildGateway();
@@ -37,6 +39,7 @@ private:
     AccessControlService access_;
     AlertService alerts_;
     EmergencyCoordinator coordinator_;
+    OperatorConsole console_;
 };
 
 #endif

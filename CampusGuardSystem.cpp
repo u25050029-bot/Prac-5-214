@@ -27,7 +27,8 @@ CampusGuardSystem::CampusGuardSystem()
       dispatch_(roster_),
       access_(*campus_),
       alerts_(),
-      coordinator_(registry_, dispatch_, access_, alerts_) {
+      coordinator_(registry_, dispatch_, access_, alerts_),
+      console_("Operator Naidoo") {
     buildRoster(roster_);
 }
 
@@ -47,6 +48,10 @@ AccessControlService& CampusGuardSystem::access() {
 
 AlertService& CampusGuardSystem::alerts() {
     return alerts_;
+}
+
+OperatorConsole& CampusGuardSystem::console() {
+    return console_;
 }
 
 std::unique_ptr<LegacyAccessAdapter> CampusGuardSystem::buildGateway() {

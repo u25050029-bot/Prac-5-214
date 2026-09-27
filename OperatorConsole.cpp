@@ -13,18 +13,17 @@ bool OperatorConsole::submit(std::unique_ptr<Command> command) {
         Log::line("Console", "REJECTED: empty command");
         return false;
     }
-    history_.push_back(std::move(command));
-    Command& current = *history_.back();
-    Log::line("Console", operatorName_ + " executes: " + current.describe());
+    Log::line("Console", operatorName_ + " executes: " + command->describe());
     {
         Log::Scope scope;
         try {
-            current.execute();
+            command->execute();
         } catch (const std::exception& ex) {
-            Log::line("Console", std::string("REJECTED: ") + ex.what());
+            Log::line("Console", std::string("REJECTED, nothing recorded: ") + ex.what());
             return false;
         }
     }
+    history_.push_back(std::move(command));
     Log::line("Console", "Recorded as action " + std::to_string(history_.size()) + ": " + history_.back()->describe());
     return true;
 }

@@ -9,6 +9,18 @@
 #include "Incident.h"
 #include "ResponseUnit.h"
 
+namespace {
+
+std::string areaName(const AreaComponent* area) {
+    return area != nullptr ? area->getName() : std::string("<unknown area>");
+}
+
+std::string incidentName(const Incident* incident) {
+    return incident != nullptr ? incident->label() : std::string("<no incident>");
+}
+
+}
+
 DispatchUnitCommand::DispatchUnitCommand(DispatchService& receiver, Incident* incident, UnitType type)
     : receiver_(receiver), incident_(incident), type_(type), dispatched_(nullptr) {}
 
@@ -28,7 +40,7 @@ void DispatchUnitCommand::undo() {
 
 std::string DispatchUnitCommand::describe() const {
     std::string unit = dispatched_ != nullptr ? " [" + dispatched_->getCallsign() + "]" : std::string();
-    return "Dispatch " + toString(type_) + " unit to incident " + incident_->label() + unit;
+    return "Dispatch " + toString(type_) + " unit to incident " + incidentName(incident_) + unit;
 }
 
 LockAreaCommand::LockAreaCommand(AccessControlService& receiver, AreaComponent* area, Incident* context)
@@ -45,7 +57,7 @@ void LockAreaCommand::undo() {
 }
 
 std::string LockAreaCommand::describe() const {
-    return "Lock down " + area_->getName();
+    return "Lock down " + areaName(area_);
 }
 
 RestrictAreaCommand::RestrictAreaCommand(AccessControlService& receiver, AreaComponent* area, AccessLevel level, Incident* context)
@@ -62,7 +74,7 @@ void RestrictAreaCommand::undo() {
 }
 
 std::string RestrictAreaCommand::describe() const {
-    return "Restrict " + area_->getName() + " to " + toString(level_);
+    return "Restrict " + areaName(area_) + " to " + toString(level_);
 }
 
 ActivateAlertCommand::ActivateAlertCommand(AlertService& receiver, AreaComponent* area, AlertLevel level, const std::string& message, Incident* context)
@@ -80,7 +92,7 @@ void ActivateAlertCommand::undo() {
 }
 
 std::string ActivateAlertCommand::describe() const {
-    return "Activate " + toString(level_) + " alert in " + area_->getName();
+    return "Activate " + toString(level_) + " alert in " + areaName(area_);
 }
 
 IssueEvacuationCommand::IssueEvacuationCommand(AlertService& receiver, AreaComponent* area, Incident* context)
@@ -97,5 +109,5 @@ void IssueEvacuationCommand::undo() {
 }
 
 std::string IssueEvacuationCommand::describe() const {
-    return "Issue evacuation of " + area_->getName() + " for incident " + context_->label();
+    return "Issue evacuation of " + areaName(area_) + " for incident " + incidentName(context_);
 }
