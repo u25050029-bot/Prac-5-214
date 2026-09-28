@@ -1,0 +1,166 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2890" height="1314" viewBox="0 0 2890 1314">
+<rect x="0" y="0" width="2890" height="1314" fill="#ffffff"/>
+<rect x="1159.0" y="190.0" width="1287.0" height="554.0" fill="none" stroke="#000000" stroke-width="1"/>
+<polygon points="1159.0,190.0 1205.0,190.0 1205.0,201.0 1199.0,207.0 1159.0,207.0" fill="#ffffff" stroke="#000000" stroke-width="1"/>
+<text x="1164.0" y="202.0" font-family="Liberation Sans, Arial, sans-serif" font-size="11" font-weight="bold">loop</text>
+<text x="1211.0" y="203.0" font-family="Liberation Sans, Arial, sans-serif" font-size="11">[each child in children_ (Engineering Ground, Engineering Level 1)]</text>
+<rect x="1335.0" y="256.0" width="1099.0" height="470.0" fill="none" stroke="#000000" stroke-width="1"/>
+<polygon points="1335.0,256.0 1381.0,256.0 1381.0,267.0 1375.0,273.0 1335.0,273.0" fill="#ffffff" stroke="#000000" stroke-width="1"/>
+<text x="1340.0" y="268.0" font-family="Liberation Sans, Arial, sans-serif" font-size="11" font-weight="bold">loop</text>
+<text x="1387.0" y="269.0" font-family="Liberation Sans, Arial, sans-serif" font-size="11">[each child in children_ (two doors per floor)]</text>
+<rect x="1496.0" y="454.0" width="926.0" height="254.0" fill="none" stroke="#000000" stroke-width="1"/>
+<polygon points="1496.0,454.0 1535.0,454.0 1535.0,465.0 1529.0,471.0 1496.0,471.0" fill="#ffffff" stroke="#000000" stroke-width="1"/>
+<text x="1501.0" y="466.0" font-family="Liberation Sans, Arial, sans-serif" font-size="11" font-weight="bold">alt</text>
+<text x="1541.0" y="467.0" font-family="Liberation Sans, Arial, sans-serif" font-size="11">[panel online]</text>
+<line x1="1496.0" y1="582.0" x2="2422.0" y2="582.0" stroke="#000000" stroke-width="1" stroke-dasharray="5,4"/>
+<text x="1502.0" y="596.0" font-family="Liberation Sans, Arial, sans-serif" font-size="11">[panel 104 offline (EB-1-SERVER)]</text>
+<rect x="93.0" y="798.0" width="2727.0" height="410.0" fill="none" stroke="#000000" stroke-width="1"/>
+<polygon points="93.0,798.0 132.0,798.0 132.0,809.0 126.0,815.0 93.0,815.0" fill="#ffffff" stroke="#000000" stroke-width="1"/>
+<text x="98.0" y="810.0" font-family="Liberation Sans, Arial, sans-serif" font-size="11" font-weight="bold">alt</text>
+<text x="138.0" y="811.0" font-family="Liberation Sans, Arial, sans-serif" font-size="11">[result.failed is not empty (3/4 doors confirmed)]</text>
+<line x1="93.0" y1="1034.0" x2="2820.0" y2="1034.0" stroke="#000000" stroke-width="1" stroke-dasharray="5,4"/>
+<text x="99.0" y="1048.0" font-family="Liberation Sans, Arial, sans-serif" font-size="11">[every door confirmed]</text>
+<rect x="30.0" y="30.0" width="207.0" height="40" fill="#7acff5" stroke="#000000" stroke-width="1"/>
+<text x="133.5" y="54.0" text-anchor="middle" font-family="Liberation Sans, Arial, sans-serif" font-size="11">coordinator_ : EmergencyCoordinator</text>
+<line x1="133.5" y1="70.0" x2="133.5" y2="1284.0" stroke="#000000" stroke-width="1" stroke-dasharray="5,4"/>
+<rect x="387.0" y="30.0" width="180.0" height="40" fill="#7acff5" stroke="#000000" stroke-width="1"/>
+<text x="477.0" y="54.0" text-anchor="middle" font-family="Liberation Sans, Arial, sans-serif" font-size="11">access_ : AccessControlService</text>
+<line x1="477.0" y1="70.0" x2="477.0" y2="1284.0" stroke="#000000" stroke-width="1" stroke-dasharray="5,4"/>
+<rect x="1126.0" y="30.0" width="145.0" height="40" fill="#7acff5" stroke="#000000" stroke-width="1"/>
+<text x="1198.5" y="54.0" text-anchor="middle" font-family="Liberation Sans, Arial, sans-serif" font-size="11">Engineering : AreaGroup</text>
+<line x1="1198.5" y1="70.0" x2="1198.5" y2="1284.0" stroke="#000000" stroke-width="1" stroke-dasharray="5,4"/>
+<rect x="1321.0" y="30.0" width="107.0" height="40" fill="#7acff5" stroke="#000000" stroke-width="1"/>
+<text x="1374.5" y="54.0" text-anchor="middle" font-family="Liberation Sans, Arial, sans-serif" font-size="11">floor : AreaGroup</text>
+<line x1="1374.5" y1="70.0" x2="1374.5" y2="1284.0" stroke="#000000" stroke-width="1" stroke-dasharray="5,4"/>
+<rect x="1478.0" y="30.0" width="115.0" height="40" fill="#7acff5" stroke="#000000" stroke-width="1"/>
+<text x="1535.5" y="54.0" text-anchor="middle" font-family="Liberation Sans, Arial, sans-serif" font-size="11">door : AccessPoint</text>
+<line x1="1535.5" y1="70.0" x2="1535.5" y2="1284.0" stroke="#000000" stroke-width="1" stroke-dasharray="5,4"/>
+<rect x="1871.0" y="30.0" width="189.0" height="40" fill="#7acff5" stroke="#000000" stroke-width="1"/>
+<text x="1965.5" y="54.0" text-anchor="middle" font-family="Liberation Sans, Arial, sans-serif" font-size="11">gateway_ : LegacyAccessAdapter</text>
+<line x1="1965.5" y1="70.0" x2="1965.5" y2="1284.0" stroke="#000000" stroke-width="1" stroke-dasharray="5,4"/>
+<rect x="2286.0" y="30.0" width="191.0" height="40" fill="#7acff5" stroke="#000000" stroke-width="1"/>
+<text x="2381.5" y="54.0" text-anchor="middle" font-family="Liberation Sans, Arial, sans-serif" font-size="11">controller_ : LegacyDoorController</text>
+<line x1="2381.5" y1="70.0" x2="2381.5" y2="1284.0" stroke="#000000" stroke-width="1" stroke-dasharray="5,4"/>
+<rect x="2527.0" y="30.0" width="124.0" height="40" fill="#7acff5" stroke="#000000" stroke-width="1"/>
+<text x="2589.0" y="54.0" text-anchor="middle" font-family="Liberation Sans, Arial, sans-serif" font-size="11">alerts_ : AlertService</text>
+<line x1="2589.0" y1="70.0" x2="2589.0" y2="1284.0" stroke="#000000" stroke-width="1" stroke-dasharray="5,4"/>
+<rect x="2701.0" y="30.0" width="159.0" height="40" fill="#7acff5" stroke="#000000" stroke-width="1"/>
+<text x="2780.5" y="54.0" text-anchor="middle" font-family="Liberation Sans, Arial, sans-serif" font-size="11">dispatch_ : DispatchService</text>
+<line x1="2780.5" y1="70.0" x2="2780.5" y2="1284.0" stroke="#000000" stroke-width="1" stroke-dasharray="5,4"/>
+<rect x="473.6" y="116.0" width="8.0" height="1132.0" fill="#7acff5" stroke="#000000" stroke-width="1"/>
+<rect x="1195.4" y="178.0" width="8.0" height="584.0" fill="#7acff5" stroke="#000000" stroke-width="1"/>
+<rect x="1371.4" y="244.0" width="8.0" height="500.0" fill="#7acff5" stroke="#000000" stroke-width="1"/>
+<rect x="1532.4" y="310.0" width="8.0" height="416.0" fill="#7acff5" stroke="#000000" stroke-width="1"/>
+<rect x="1962.5" y="372.0" width="8.0" height="296.0" fill="#7acff5" stroke="#000000" stroke-width="1"/>
+<rect x="2378.5" y="442.0" width="8.0" height="196.0" fill="#7acff5" stroke="#000000" stroke-width="1"/>
+<rect x="129.5" y="892.0" width="8.0" height="146.0" fill="#7acff5" stroke="#000000" stroke-width="1"/>
+<rect x="2586.0" y="962.0" width="8.0" height="16.0" fill="#7acff5" stroke="#000000" stroke-width="1"/>
+<rect x="2777.5" y="992.0" width="8.0" height="38.0" fill="#7acff5" stroke="#000000" stroke-width="1"/>
+<rect x="129.5" y="1122.0" width="8.0" height="86.0" fill="#7acff5" stroke="#000000" stroke-width="1"/>
+<rect x="2586.0" y="1192.0" width="8.0" height="16.0" fill="#7acff5" stroke="#000000" stroke-width="1"/>
+<polygon points="493.0,126.0 613.0,126.0 620.0,133.0 620.0,146.0 493.0,146.0" fill="#ffffff" stroke="#000000" stroke-width="1"/>
+<polyline points="613.0,126.0 613.0,133.0 620.0,133.0" fill="none" stroke="#000000" stroke-width="1"/>
+<text x="498.0" y="140.0" font-family="Liberation Sans, Arial, sans-serif" font-size="11">OperationResult result</text>
+<polygon points="1552.0,320.0 1654.0,320.0 1661.0,327.0 1661.0,340.0 1552.0,340.0" fill="#ffffff" stroke="#000000" stroke-width="1"/>
+<polyline points="1654.0,320.0 1654.0,327.0 1661.0,327.0" fill="none" stroke="#000000" stroke-width="1"/>
+<text x="1557.0" y="334.0" font-family="Liberation Sans, Arial, sans-serif" font-size="11">++result.attempted</text>
+<polygon points="1552.0,548.0 1696.0,548.0 1703.0,555.0 1703.0,568.0 1552.0,568.0" fill="#ffffff" stroke="#000000" stroke-width="1"/>
+<polyline points="1696.0,548.0 1696.0,555.0 1703.0,555.0" fill="none" stroke="#000000" stroke-width="1"/>
+<text x="1557.0" y="562.0" font-family="Liberation Sans, Arial, sans-serif" font-size="11">state_ = DoorState::Locked</text>
+<polygon points="1552.0,670.0 1734.0,670.0 1741.0,677.0 1741.0,690.0 1552.0,690.0" fill="#ffffff" stroke="#000000" stroke-width="1"/>
+<polyline points="1734.0,670.0 1734.0,677.0 1741.0,677.0" fill="none" stroke="#000000" stroke-width="1"/>
+<text x="1557.0" y="684.0" font-family="Liberation Sans, Arial, sans-serif" font-size="11">result.failed.push_back(getName())</text>
+<path d="M 133.5 120.0 L 473.6 120.0" fill="none" stroke="#000000" stroke-width="1"/>
+<polygon points="473.60,120.00 463.60,124.00 463.60,116.00 473.60,120.00" fill="#000000" stroke="#000000" stroke-width="1"/>
+<path d="M 481.6 182.0 L 1195.4 182.0" fill="none" stroke="#000000" stroke-width="1"/>
+<polygon points="1195.40,182.00 1185.40,186.00 1185.40,178.00 1195.40,182.00" fill="#000000" stroke="#000000" stroke-width="1"/>
+<path d="M 1203.4 248.0 L 1371.4 248.0" fill="none" stroke="#000000" stroke-width="1"/>
+<polygon points="1371.40,248.00 1361.40,252.00 1361.40,244.00 1371.40,248.00" fill="#000000" stroke="#000000" stroke-width="1"/>
+<path d="M 1379.4 314.0 L 1532.4 314.0" fill="none" stroke="#000000" stroke-width="1"/>
+<polygon points="1532.40,314.00 1522.40,318.00 1522.40,310.00 1532.40,314.00" fill="#000000" stroke="#000000" stroke-width="1"/>
+<path d="M 1540.4 376.0 L 1962.5 376.0" fill="none" stroke="#000000" stroke-width="1"/>
+<polygon points="1962.50,376.00 1952.50,380.00 1952.50,372.00 1962.50,376.00" fill="#000000" stroke="#000000" stroke-width="1"/>
+<path d="M 1970.5 402.0 L 2004.5 402.0 L 2004.5 416.0 L 1970.5 416.0" fill="none" stroke="#000000" stroke-width="1"/>
+<polygon points="1970.50,416.00 1980.50,412.00 1980.50,420.00 1970.50,416.00" fill="#000000" stroke="#000000" stroke-width="1"/>
+<path d="M 1970.5 446.0 L 2378.5 446.0" fill="none" stroke="#000000" stroke-width="1"/>
+<polygon points="2378.50,446.00 2368.50,450.00 2368.50,442.00 2378.50,446.00" fill="#000000" stroke="#000000" stroke-width="1"/>
+<path d="M 2378.5 512.0 L 1970.5 512.0" fill="none" stroke="#000000" stroke-width="1" stroke-dasharray="5,4"/>
+<polyline points="1980.50,507.00 1970.50,512.00 1980.50,517.00" fill="none" stroke="#000000" stroke-width="1"/>
+<path d="M 1962.5 542.0 L 1540.4 542.0" fill="none" stroke="#000000" stroke-width="1" stroke-dasharray="5,4"/>
+<polyline points="1550.40,537.00 1540.40,542.00 1550.40,547.00" fill="none" stroke="#000000" stroke-width="1"/>
+<path d="M 2378.5 634.0 L 1970.5 634.0" fill="none" stroke="#000000" stroke-width="1" stroke-dasharray="5,4"/>
+<polyline points="1980.50,629.00 1970.50,634.00 1980.50,639.00" fill="none" stroke="#000000" stroke-width="1"/>
+<path d="M 1962.5 664.0 L 1540.4 664.0" fill="none" stroke="#000000" stroke-width="1" stroke-dasharray="5,4"/>
+<polyline points="1550.40,659.00 1540.40,664.00 1550.40,669.00" fill="none" stroke="#000000" stroke-width="1"/>
+<path d="M 481.6 776.0 L 515.6 776.0 L 515.6 790.0 L 481.6 790.0" fill="none" stroke="#000000" stroke-width="1"/>
+<polygon points="481.60,790.00 491.60,786.00 491.60,794.00 481.60,790.00" fill="#000000" stroke="#000000" stroke-width="1"/>
+<path d="M 481.6 852.0 L 515.6 852.0 L 515.6 866.0 L 481.6 866.0" fill="none" stroke="#000000" stroke-width="1"/>
+<polygon points="481.60,866.00 491.60,862.00 491.60,870.00 481.60,866.00" fill="#000000" stroke="#000000" stroke-width="1"/>
+<path d="M 473.6 896.0 L 137.5 896.0" fill="none" stroke="#000000" stroke-width="1"/>
+<polygon points="137.50,896.00 147.50,892.00 147.50,900.00 137.50,896.00" fill="#000000" stroke="#000000" stroke-width="1"/>
+<path d="M 137.5 922.0 L 171.5 922.0 L 171.5 936.0 L 137.5 936.0" fill="none" stroke="#000000" stroke-width="1"/>
+<polygon points="137.50,936.00 147.50,932.00 147.50,940.00 137.50,936.00" fill="#000000" stroke="#000000" stroke-width="1"/>
+<path d="M 137.5 966.0 L 2586.0 966.0" fill="none" stroke="#000000" stroke-width="1"/>
+<polygon points="2586.00,966.00 2576.00,970.00 2576.00,962.00 2586.00,966.00" fill="#000000" stroke="#000000" stroke-width="1"/>
+<path d="M 137.5 996.0 L 2777.5 996.0" fill="none" stroke="#000000" stroke-width="1"/>
+<polygon points="2777.50,996.00 2767.50,1000.00 2767.50,992.00 2777.50,996.00" fill="#000000" stroke="#000000" stroke-width="1"/>
+<path d="M 2777.5 1026.0 L 137.5 1026.0" fill="none" stroke="#000000" stroke-width="1" stroke-dasharray="5,4"/>
+<polyline points="147.50,1021.00 137.50,1026.00 147.50,1031.00" fill="none" stroke="#000000" stroke-width="1"/>
+<path d="M 481.6 1082.0 L 515.6 1082.0 L 515.6 1096.0 L 481.6 1096.0" fill="none" stroke="#000000" stroke-width="1"/>
+<polygon points="481.60,1096.00 491.60,1092.00 491.60,1100.00 481.60,1096.00" fill="#000000" stroke="#000000" stroke-width="1"/>
+<path d="M 473.6 1126.0 L 137.5 1126.0" fill="none" stroke="#000000" stroke-width="1"/>
+<polygon points="137.50,1126.00 147.50,1122.00 147.50,1130.00 137.50,1126.00" fill="#000000" stroke="#000000" stroke-width="1"/>
+<path d="M 137.5 1152.0 L 171.5 1152.0 L 171.5 1166.0 L 137.5 1166.0" fill="none" stroke="#000000" stroke-width="1"/>
+<polygon points="137.50,1166.00 147.50,1162.00 147.50,1170.00 137.50,1166.00" fill="#000000" stroke="#000000" stroke-width="1"/>
+<path d="M 137.5 1196.0 L 2586.0 1196.0" fill="none" stroke="#000000" stroke-width="1"/>
+<polygon points="2586.00,1196.00 2576.00,1200.00 2576.00,1192.00 2586.00,1196.00" fill="#000000" stroke="#000000" stroke-width="1"/>
+<path d="M 473.6 1244.0 L 133.5 1244.0" fill="none" stroke="#000000" stroke-width="1" stroke-dasharray="5,4"/>
+<polyline points="143.50,1239.00 133.50,1244.00 143.50,1249.00" fill="none" stroke="#000000" stroke-width="1"/>
+<rect x="137.5" y="106.0" width="175.1" height="13" fill="#ffffff"/>
+<text x="139.5" y="116.0" font-family="Liberation Sans, Arial, sans-serif" font-size="11">1: secureArea(area, incident)</text>
+<rect x="485.6" y="168.0" width="104.3" height="13" fill="#ffffff"/>
+<text x="487.6" y="178.0" font-family="Liberation Sans, Arial, sans-serif" font-size="11">1.1: lock(result)</text>
+<rect x="1207.4" y="234.0" width="116.1" height="13" fill="#ffffff"/>
+<text x="1209.4" y="244.0" font-family="Liberation Sans, Arial, sans-serif" font-size="11">1.1.1: lock(result)</text>
+<rect x="1383.4" y="300.0" width="127.9" height="13" fill="#ffffff"/>
+<text x="1385.4" y="310.0" font-family="Liberation Sans, Arial, sans-serif" font-size="11">1.1.1.1: lock(result)</text>
+<rect x="1544.4" y="362.0" width="192.8" height="13" fill="#ffffff"/>
+<text x="1546.4" y="372.0" font-family="Liberation Sans, Arial, sans-serif" font-size="11">1.1.1.1.1: secureDoor(getName())</text>
+<rect x="2008.5" y="403.0" width="281.3" height="13" fill="#ffffff"/>
+<text x="2010.5" y="413.0" font-family="Liberation Sans, Arial, sans-serif" font-size="11">1.1.1.1.1.1: send(&quot;secureDoor&quot;, doorId, 'L', 0)</text>
+<rect x="1974.5" y="432.0" width="304.9" height="13" fill="#ffffff"/>
+<text x="1976.5" y="442.0" font-family="Liberation Sans, Arial, sans-serif" font-size="11">1.1.1.1.1.2: transmit(panelByDoor_[doorId], 'L', 0)</text>
+<rect x="1974.5" y="498.0" width="57.1" height="13" fill="#ffffff"/>
+<text x="1976.5" y="508.0" font-family="Liberation Sans, Arial, sans-serif" font-size="11">RC_OK (0)</text>
+<rect x="1544.4" y="528.0" width="27.6" height="13" fill="#ffffff"/>
+<text x="1546.4" y="538.0" font-family="Liberation Sans, Arial, sans-serif" font-size="11">true</text>
+<rect x="1974.5" y="620.0" width="122.0" height="13" fill="#ffffff"/>
+<text x="1976.5" y="630.0" font-family="Liberation Sans, Arial, sans-serif" font-size="11">RC_PANEL_OFFLINE (9)</text>
+<rect x="1544.4" y="650.0" width="33.5" height="13" fill="#ffffff"/>
+<text x="1546.4" y="660.0" font-family="Liberation Sans, Arial, sans-serif" font-size="11">false</text>
+<rect x="519.6" y="777.0" width="299.0" height="13" fill="#ffffff"/>
+<text x="521.6" y="787.0" font-family="Liberation Sans, Arial, sans-serif" font-size="11">1.2: conclude(&quot;lock&quot;, area, context, result, true)</text>
+<rect x="519.6" y="853.0" width="304.9" height="13" fill="#ffffff"/>
+<text x="521.6" y="863.0" font-family="Liberation Sans, Arial, sans-serif" font-size="11">1.3: changed(CoordinationEvent(AccessFailure, ...))</text>
+<rect x="141.5" y="882.0" width="151.5" height="13" fill="#ffffff"/>
+<text x="143.5" y="892.0" font-family="Liberation Sans, Arial, sans-serif" font-size="11">1.4: notify(*this, event)</text>
+<rect x="175.5" y="923.0" width="175.1" height="13" fill="#ffffff"/>
+<text x="177.5" y="933.0" font-family="Liberation Sans, Arial, sans-serif" font-size="11">1.4.1: onAccessFailure(event)</text>
+<rect x="141.5" y="952.0" width="304.9" height="13" fill="#ffffff"/>
+<text x="143.5" y="962.0" font-family="Liberation Sans, Arial, sans-serif" font-size="11">1.4.2: notifyArea(area, &quot;Access-control fault ...&quot;)</text>
+<rect x="141.5" y="982.0" width="334.4" height="13" fill="#ffffff"/>
+<text x="143.5" y="992.0" font-family="Liberation Sans, Arial, sans-serif" font-size="11">1.4.3: dispatchAvailable(incident, UnitType::Facilities)</text>
+<rect x="141.5" y="1012.0" width="33.5" height="13" fill="#ffffff"/>
+<text x="143.5" y="1022.0" font-family="Liberation Sans, Arial, sans-serif" font-size="11">Delta</text>
+<rect x="519.6" y="1083.0" width="293.1" height="13" fill="#ffffff"/>
+<text x="521.6" y="1093.0" font-family="Liberation Sans, Arial, sans-serif" font-size="11">1.5: changed(CoordinationEvent(AreaSecured, ...))</text>
+<rect x="141.5" y="1112.0" width="151.5" height="13" fill="#ffffff"/>
+<text x="143.5" y="1122.0" font-family="Liberation Sans, Arial, sans-serif" font-size="11">1.6: notify(*this, event)</text>
+<rect x="175.5" y="1153.0" width="163.3" height="13" fill="#ffffff"/>
+<text x="177.5" y="1163.0" font-family="Liberation Sans, Arial, sans-serif" font-size="11">1.6.1: onAreaSecured(event)</text>
+<rect x="141.5" y="1182.0" width="293.1" height="13" fill="#ffffff"/>
+<text x="143.5" y="1192.0" font-family="Liberation Sans, Arial, sans-serif" font-size="11">1.6.2: notifyArea(area, &quot;Lockdown confirmed ...&quot;)</text>
+<rect x="137.5" y="1230.0" width="33.5" height="13" fill="#ffffff"/>
+<text x="139.5" y="1240.0" font-family="Liberation Sans, Arial, sans-serif" font-size="11">false</text>
+<text x="2" y="9" font-family="Liberation Sans, Arial, sans-serif" font-size="9" fill="#000000" opacity="0.5">Visual Paradigm Standard(Heinrich Muller(University of Pretoria))</text>
+</svg>
