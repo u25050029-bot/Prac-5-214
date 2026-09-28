@@ -29,17 +29,9 @@ Incident* CampusGuardFacade::respondToFire(const std::string& buildingName, cons
     Log::line("Facade", "Step 3/5 AlertService.issueEvacuation");
     alerts_.issueEvacuation(building, incident);
     Log::line("Facade", "Step 4/5 DispatchService.dispatchAvailable(Facilities)");
-    try {
-        dispatch_.dispatchAvailable(incident, UnitType::Facilities);
-    } catch (const std::runtime_error& ex) {
-        Log::line("Facade", std::string("Facilities dispatch failed: ") + ex.what());
-    }
+    dispatchOrContinue(incident, UnitType::Facilities);
     Log::line("Facade", "Step 5/5 DispatchService.dispatchAvailable(Medical)");
-    try {
-        dispatch_.dispatchAvailable(incident, UnitType::Medical);
-    } catch (const std::runtime_error& ex) {
-        Log::line("Facade", std::string("Medical dispatch failed: ") + ex.what());
-    }
+    dispatchOrContinue(incident, UnitType::Medical);
     Log::line("Facade", "respondToFire complete: " + incident->summary());
     return incident;
 }
@@ -50,16 +42,11 @@ void CampusGuardFacade::standDown(Incident* incident) {
     }
     Log::line("Facade", "standDown(" + incident->label() + ") started");
     Log::Scope scope;
-    IncidentStatus status = incident->getStatus();
-    if (status == IncidentStatus::Dispatched) {
+    if (incident->getStatus() == IncidentStatus::Dispatched) {
         Log::line("Facade", "Step 1/3 IncidentRegistry.contain");
         registry_.contain(incident);
-    } else if (status == IncidentStatus::Reported) {
-        Log::line("Facade", "Step 1/3 skipped: incident is " + toString(status));
-    } else if (status == IncidentStatus::Contained) {
-        Log::line("Facade", "Step 1/3 skipped: incident is " + toString(status));
     } else {
-        Log::line("Facade", "Step 1/3 skipped: incident is " + toString(status));
+        Log::line("Facade", "Step 1/3 skipped: incident is " + toString(incident->getStatus()));
     }
     Log::line("Facade", "Step 2/3 IncidentRegistry.resolve");
     registry_.resolve(incident);
@@ -73,4 +60,13 @@ void CampusGuardFacade::situationReport() const {
     registry_.printIncidents();
     dispatch_.printRoster();
     alerts_.printStatus();
+    access_.printCampusReport();
+}
+
+void CampusGuardFacade::dispatchOrContinue(Incident* incident, UnitType type) {
+    try {
+        dispatch_.dispatchAvailable(incident, type);
+    } catch (const std::runtime_error& ex) {
+        Log::line("Facade", std::string("Dispatch step skipped (") + ex.what() + "); workflow continues");
+    }
 }

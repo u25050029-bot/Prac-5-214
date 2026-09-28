@@ -23,6 +23,8 @@ public:
     void situationReport() const;
 
 private:
+    void dispatchOrContinue(Incident* incident, UnitType type);
+
     IncidentRegistry& registry_;
     DispatchService& dispatch_;
     AccessControlService& access_;
