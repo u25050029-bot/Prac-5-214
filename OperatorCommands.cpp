@@ -34,6 +34,9 @@ void DispatchUnitCommand::undo() {
     if (dispatched_ == nullptr) {
         throw std::logic_error("nothing was dispatched by this command");
     }
+    if (!incident_->isActive()) {
+        throw std::logic_error("incident " + incident_->label() + " is closed; its dispatch history is final");
+    }
     receiver_.recall(dispatched_, incident_);
     dispatched_ = nullptr;
 }

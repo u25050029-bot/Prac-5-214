@@ -6,6 +6,7 @@
 #include "AccessControlService.h"
 #include "AlertService.h"
 #include "AreaGroup.h"
+#include "CampusGuardFacade.h"
 #include "DispatchService.h"
 #include "EmergencyCoordinator.h"
 #include "IncidentRegistry.h"
@@ -25,6 +26,7 @@ public:
     AccessControlService& access();
     AlertService& alerts();
     OperatorConsole& console();
+    CampusGuardFacade& facade();
 
 private:
     static std::unique_ptr<LegacyAccessAdapter> buildGateway();
@@ -40,6 +42,7 @@ private:
     AlertService alerts_;
     EmergencyCoordinator coordinator_;
     OperatorConsole console_;
+    CampusGuardFacade facade_;
 };
 
 #endif
