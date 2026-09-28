@@ -5,11 +5,11 @@
 #include <memory>
 #include <vector>
 
-#include "Aggregate.h"
+#include "Traversable.h"
 #include "Iterator.h"
 #include "ResponseUnit.h"
 
-class UnitRoster : public Aggregate<ResponseUnit*> {
+class UnitRoster : public Traversable<ResponseUnit*> {
 public:
     UnitRoster();
     ~UnitRoster() override;

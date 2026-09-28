@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-#include "Aggregate.h"
+#include "Traversable.h"
 #include "Iterator.h"
 #include "Types.h"
 
@@ -16,7 +16,7 @@ struct OperationResult {
     std::vector<std::string> failed;
 };
 
-class AreaComponent : public Aggregate<AreaComponent*> {
+class AreaComponent : public Traversable<AreaComponent*> {
     friend class AreaGroup;
 
 public:
