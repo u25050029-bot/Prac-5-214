@@ -13,21 +13,14 @@ Log::Scope::~Scope() {
 }
 
 void Log::line(const std::string& tag, const std::string& message) {
-    std::string pad;
-    for (int i = 0; i < depth_; ++i) {
-        pad += "  ";
-    }
-    std::cout << pad << "[" << tag << "] " << message << std::endl;
+    std::cout << std::string(static_cast<std::size_t>(depth_) * 2, ' ') << "[" << tag << "] " << message << "\n";
 }
 
 void Log::step(const std::string& message) {
-    std::cout << std::endl << ">> " << message << std::endl;
+    std::cout << "\n>> " << message << "\n";
 }
 
 void Log::banner(const std::string& title) {
-    std::string rule;
-    for (int i = 0; i < 78; ++i) {
-        rule += "=";
-    }
-    std::cout << std::endl << rule << std::endl << title << std::endl << rule << std::endl;
+    std::string rule(78, '=');
+    std::cout << "\n" << rule << "\n" << title << "\n" << rule << "\n";
 }
