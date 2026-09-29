@@ -21,18 +21,19 @@ int AlertService::activateAlert(AreaComponent* area, AlertLevel level, const std
 }
 
 void AlertService::deactivateAlert(int alertId) {
-    for (std::size_t i = 0; i < alerts_.size(); ++i) {
-        if (alerts_[i].id == alertId) {
-            Log::line(getComponentName(), "Alert #" + std::to_string(alertId) + " in " + alerts_[i].area->getName() + " withdrawn");
-            alerts_.erase(alerts_.begin() + i);
-            return;
-        }
+    std::vector<ActiveAlert>::iterator it = std::find_if(alerts_.begin(), alerts_.end(), [alertId](const ActiveAlert& alert) { return alert.id == alertId; });
+    if (it == alerts_.end()) {
+        throw std::logic_error("alert #" + std::to_string(alertId) + " is not active");
     }
-    throw std::logic_error("alert #" + std::to_string(alertId) + " is not active");
+    Log::line(getComponentName(), "Alert #" + std::to_string(alertId) + " in " + it->area->getName() + " withdrawn");
+    alerts_.erase(it);
 }
 
 void AlertService::issueEvacuation(AreaComponent* area, Incident* incident) {
     requireArea(area);
+    if (isEvacuating(area)) {
+        throw std::logic_error("an evacuation of " + area->getName() + " is already in progress");
+    }
     Evacuation evacuation = {area, incident};
     evacuations_.push_back(evacuation);
     Log::line(getComponentName(), "EVACUATION ordered for " + area->getName() + ": all occupants leave by the nearest exit");
@@ -40,14 +41,12 @@ void AlertService::issueEvacuation(AreaComponent* area, Incident* incident) {
 }
 
 void AlertService::endEvacuation(AreaComponent* area) {
-    for (std::size_t i = 0; i < evacuations_.size(); ++i) {
-        if (evacuations_[i].area == area) {
-            Log::line(getComponentName(), "Evacuation order for " + area->getName() + " rescinded");
-            evacuations_.erase(evacuations_.begin() + i);
-            return;
-        }
+    std::vector<Evacuation>::iterator it = std::find_if(evacuations_.begin(), evacuations_.end(), [area](const Evacuation& e) { return e.area == area; });
+    if (it == evacuations_.end()) {
+        throw std::logic_error("no evacuation in progress for that area");
     }
-    throw std::logic_error("no evacuation in progress for that area");
+    Log::line(getComponentName(), "Evacuation order for " + area->getName() + " rescinded");
+    evacuations_.erase(it);
 }
 
 void AlertService::notifyArea(AreaComponent* area, const std::string& message) {
@@ -58,36 +57,29 @@ void AlertService::notifyArea(AreaComponent* area, const std::string& message) {
 void AlertService::clearIncident(Incident* incident) {
     std::size_t alertsBefore = alerts_.size();
     std::size_t evacuationsBefore = evacuations_.size();
-    for (std::size_t i = 0; i < alerts_.size(); ++i) {
-        if (alerts_[i].incident == incident) {
-            alerts_.erase(alerts_.begin() + i);
-        }
-    }
-    for (std::size_t i = 0; i < evacuations_.size(); ++i) {
-        if (evacuations_[i].incident == incident) {
-            evacuations_.erase(evacuations_.begin() + i);
-        }
-    }
+    alerts_.erase(std::remove_if(alerts_.begin(), alerts_.end(), [incident](const ActiveAlert& a) { return a.incident == incident; }), alerts_.end());
+    evacuations_.erase(std::remove_if(evacuations_.begin(), evacuations_.end(), [incident](const Evacuation& e) { return e.incident == incident; }), evacuations_.end());
     Log::line(getComponentName(), "Cleared " + std::to_string(alertsBefore - alerts_.size()) + " alert(s) and " + std::to_string(evacuationsBefore - evacuations_.size()) + " evacuation order(s) linked to incident " + incident->label());
 }
 
 void AlertService::printStatus() const {
     Log::line(getComponentName(), std::to_string(alerts_.size()) + " active alert(s), " + std::to_string(evacuations_.size()) + " evacuation(s) in progress");
     Log::Scope scope;
-    for (std::size_t i = 0; i < alerts_.size(); ++i) {
-        std::string line = "#" + std::to_string(alerts_[i].id);
-        line += " " + toString(alerts_[i].level);
-        line += " in " + alerts_[i].area->getName();
-        line += ": " + alerts_[i].message;
-        Log::line("Alert", line);
+    for (const ActiveAlert& alert : alerts_) {
+        Log::line("Alert", "#" + std::to_string(alert.id) + " " + toString(alert.level) + " in " + alert.area->getName() + ": " + alert.message);
     }
-    for (std::size_t i = 0; i < evacuations_.size(); ++i) {
-        std::string line = evacuations_[i].area->getName();
-        if (evacuations_[i].incident != nullptr) {
-            line += " (incident " + evacuations_[i].incident->label() + ")";
+    for (const Evacuation& evacuation : evacuations_) {
+        Log::line("Evacuation", evacuation.area->getName() + (evacuation.incident != nullptr ? " (incident " + evacuation.incident->label() + ")" : std::string()));
+    }
+}
+
+bool AlertService::isEvacuating(const AreaComponent* area) const {
+    for (const Evacuation& evacuation : evacuations_) {
+        if (evacuation.area == area) {
+            return true;
         }
-        Log::line("Evacuation", line);
     }
+    return false;
 }
 
 void AlertService::requireArea(const AreaComponent* area) {

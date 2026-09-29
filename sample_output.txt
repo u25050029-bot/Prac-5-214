@@ -1,0 +1,332 @@
+
+==============================================================================
+STORY 1: After-hours intrusion at Engineering (Command, Mediator, Composite, Iterator, Adapter)
+==============================================================================
+
+>> 1. Alarm panel reports forced entry; operator registers it directly with the IncidentRegistry
+[AccessControl] AreaDepthFirstIterator found 'Engineering' after visiting 2 component(s)
+[IncidentRegistry] Registered #1 Intrusion at Engineering | severity High | status Reported | units: none | Forced-entry alarm at the server room
+
+>> 2. Operator dispatches security: Command -> DispatchService -> Mediator -> Composite lockdown -> Adapter -> DX-9
+[Console] Operator Naidoo executes: Dispatch Security unit to incident #1 Intrusion
+  [DispatchService] AvailableUnitIterator selected Alpha; dispatched to incident #1 Intrusion
+  [Mediator] EmergencyCoordinator received UnitDispatched from DispatchService for incident #1 Intrusion
+    [IncidentRegistry] Incident #1 Intrusion status Reported -> Dispatched
+    [AlertService] Broadcast to Engineering: Alpha (Security) en route to incident #1 Intrusion
+    [Mediator] Rule: first security unit on an intrusion -> lock down Engineering
+    [AccessControl] Lock down Building 'Engineering'
+      [Composite] Building 'Engineering': lock forwarded to 2 child component(s)
+        [Composite] Floor 'Engineering Ground': lock forwarded to 2 child component(s)
+          [Legacy DX-9] >> PNL#101 OP:L CLR:0 << RC:00
+          [Adapter] secureDoor("EB-G-MAIN") => transmit(101, 'L', 0) => RC 0 OK => true
+          [Legacy DX-9] >> PNL#102 OP:L CLR:0 << RC:00
+          [Adapter] secureDoor("EB-G-EAST") => transmit(102, 'L', 0) => RC 0 OK => true
+        [Composite] Floor 'Engineering Level 1': lock forwarded to 2 child component(s)
+          [Legacy DX-9] >> PNL#103 OP:L CLR:0 << RC:00
+          [Adapter] secureDoor("EB-1-LAB") => transmit(103, 'L', 0) => RC 0 OK => true
+          [Legacy DX-9] >> PNL#104 OP:L CLR:0 << RC:09
+          [Adapter] secureDoor("EB-1-SERVER") => transmit(104, 'L', 0) => RC 9 PANEL_OFFLINE => false
+    [AccessControl] lock of 'Engineering': 3/4 doors confirmed by gateway
+    [Mediator] EmergencyCoordinator received AccessFailure from AccessControl for incident #1 Intrusion
+      [AlertService] Broadcast to Engineering: Access-control fault (lock failed at EB-1-SERVER); manual door check required
+      [Mediator] Rule: door fault during an active incident -> dispatch facilities
+      [DispatchService] AvailableUnitIterator selected Delta; dispatched to incident #1 Intrusion
+      [Mediator] EmergencyCoordinator received UnitDispatched from DispatchService for incident #1 Intrusion
+        [AlertService] Broadcast to Engineering: Delta (Facilities) en route to incident #1 Intrusion
+[Console] Recorded as action 1: Dispatch Security unit to incident #1 Intrusion [Alpha]
+
+>> 3. Operator warns the rest of campus
+[AccessControl] AreaDepthFirstIterator found 'Engineering' after visiting 2 component(s)
+[Console] Operator Naidoo executes: Activate Warning alert in Engineering
+  [AlertService] Warning alert #1 ACTIVE in Engineering: Intruder reported; avoid the Engineering building
+[Console] Recorded as action 2: Activate Warning alert in Engineering
+
+>> 4. Precaution: operator locks the neighbouring Student Centre
+[AccessControl] AreaDepthFirstIterator found 'Student Centre' after visiting 15 component(s)
+[Console] Operator Naidoo executes: Lock down Student Centre
+  [AccessControl] Lock down Building 'Student Centre'
+    [Composite] Building 'Student Centre': lock forwarded to 1 child component(s)
+      [Composite] Floor 'Student Centre Ground': lock forwarded to 2 child component(s)
+        [Legacy DX-9] >> PNL#301 OP:L CLR:0 << RC:00
+        [Adapter] secureDoor("SC-G-MAIN") => transmit(301, 'L', 0) => RC 0 OK => true
+        [Legacy DX-9] >> PNL#302 OP:L CLR:0 << RC:00
+        [Adapter] secureDoor("SC-G-CLINIC") => transmit(302, 'L', 0) => RC 0 OK => true
+  [AccessControl] lock of 'Student Centre': 2/2 doors confirmed by gateway
+  [Mediator] EmergencyCoordinator received AreaSecured from AccessControl for incident #1 Intrusion
+    [AlertService] Broadcast to Student Centre: Lockdown confirmed: shelter in place and keep doors closed
+[Console] Recorded as action 3: Lock down Student Centre
+
+>> 5. Operator sends a second security unit as backup
+[Console] Operator Naidoo executes: Dispatch Security unit to incident #1 Intrusion
+  [DispatchService] AvailableUnitIterator selected Bravo; dispatched to incident #1 Intrusion
+  [Mediator] EmergencyCoordinator received UnitDispatched from DispatchService for incident #1 Intrusion
+    [AlertService] Broadcast to Engineering: Bravo (Security) en route to incident #1 Intrusion
+[Console] Recorded as action 4: Dispatch Security unit to incident #1 Intrusion [Bravo]
+
+>> 6. Alpha reports a single intruder; operator cancels the backup dispatch
+[Console] Operator Naidoo cancels: Dispatch Security unit to incident #1 Intrusion [Bravo]
+  [DispatchService] Bravo recalled from incident #1 Intrusion
+  [Mediator] EmergencyCoordinator received UnitRecalled from DispatchService for incident #1 Intrusion
+    [AlertService] Broadcast to Engineering: Bravo stood down from incident #1 Intrusion
+    [Mediator] Incident #1 Intrusion still has 2 unit(s) on scene; status unchanged
+[Console] Action cancelled; 3 action(s) remain in history
+
+>> 7. Intruder confirmed inside Engineering only; operator cancels the Student Centre lockdown
+[Console] Operator Naidoo cancels: Lock down Student Centre
+  [AccessControl] Release Building 'Student Centre'
+    [Composite] Building 'Student Centre': unlock forwarded to 1 child component(s)
+      [Composite] Floor 'Student Centre Ground': unlock forwarded to 2 child component(s)
+        [Legacy DX-9] >> PNL#301 OP:U CLR:0 << RC:00
+        [Adapter] releaseDoor("SC-G-MAIN") => transmit(301, 'U', 0) => RC 0 OK => true
+        [Legacy DX-9] >> PNL#302 OP:U CLR:0 << RC:00
+        [Adapter] releaseDoor("SC-G-CLINIC") => transmit(302, 'U', 0) => RC 0 OK => true
+  [AccessControl] unlock of 'Student Centre': 2/2 doors confirmed by gateway
+[Console] Action cancelled; 2 action(s) remain in history
+
+>> 8. Invalid request: operator tries to lock an area that is not in the campus model
+[AccessControl] AreaDepthFirstIterator visited all 18 component(s); no area named 'Chemistry Block'
+[Console] Operator Naidoo executes: Lock down <unknown area>
+  [Console] REJECTED, nothing recorded: unknown area: it is not part of the campus model
+
+>> 9. Operator reviews the Engineering access state
+[AccessControl] AreaDepthFirstIterator found 'Engineering' after visiting 2 component(s)
+[AccessControl] Access report for 'Engineering' (AreaDepthFirstIterator):
+  [Area] Building Engineering: 3/4 doors secured
+  [Area]   Floor Engineering Ground: 2/2 doors secured
+  [Area]     Door EB-G-MAIN: LOCKED
+  [Area]     Door EB-G-EAST: LOCKED
+  [Area]   Floor Engineering Level 1: 1/2 doors secured
+  [Area]     Door EB-1-LAB: LOCKED
+  [Area]     Door EB-1-SERVER: UNLOCKED
+
+>> 10. Intruder detained: incident contained, then resolved (mediator stands everything down)
+[IncidentRegistry] Incident #1 Intrusion status Dispatched -> Contained
+[IncidentRegistry] Incident #1 Intrusion status Contained -> Resolved
+[Mediator] EmergencyCoordinator received IncidentResolved from IncidentRegistry for incident #1 Intrusion
+  [Mediator] Rule: resolution -> release units, reopen area, clear alerts, all-clear
+  [DispatchService] Alpha released and available again
+  [DispatchService] Delta released and available again
+  [AccessControl] Release Building 'Engineering'
+    [Composite] Building 'Engineering': unlock forwarded to 2 child component(s)
+      [Composite] Floor 'Engineering Ground': unlock forwarded to 2 child component(s)
+        [Legacy DX-9] >> PNL#101 OP:U CLR:0 << RC:00
+        [Adapter] releaseDoor("EB-G-MAIN") => transmit(101, 'U', 0) => RC 0 OK => true
+        [Legacy DX-9] >> PNL#102 OP:U CLR:0 << RC:00
+        [Adapter] releaseDoor("EB-G-EAST") => transmit(102, 'U', 0) => RC 0 OK => true
+      [Composite] Floor 'Engineering Level 1': unlock forwarded to 2 child component(s)
+        [Legacy DX-9] >> PNL#103 OP:U CLR:0 << RC:00
+        [Adapter] releaseDoor("EB-1-LAB") => transmit(103, 'U', 0) => RC 0 OK => true
+        [Legacy DX-9] >> PNL#104 OP:U CLR:0 << RC:09
+        [Adapter] releaseDoor("EB-1-SERVER") => transmit(104, 'U', 0) => RC 9 PANEL_OFFLINE => false
+  [AccessControl] unlock of 'Engineering': 3/4 doors confirmed by gateway
+  [Mediator] EmergencyCoordinator received AccessFailure from AccessControl for incident #1 Intrusion
+    [AlertService] Broadcast to Engineering: Access-control fault (unlock failed at EB-1-SERVER); manual door check required
+    [Mediator] No active incident to attach a repair crew to; fault logged for manual follow-up
+  [AlertService] Cleared 1 alert(s) and 0 evacuation order(s) linked to incident #1 Intrusion
+  [AlertService] Broadcast to Engineering: ALL CLEAR for incident #1 Intrusion
+
+>> 11. Invalid request: a second resolve of the same incident
+[Operator] Request rejected: invalid status change for incident #1 Intrusion: Resolved -> Resolved
+
+==============================================================================
+STORY 2: Library fire and a medical emergency (Facade, Command, Mediator, Adapter, Composite, Iterator)
+==============================================================================
+
+>> 1. Night mode: operator restricts the Library archive floor to staff
+[AccessControl] AreaDepthFirstIterator found 'Library Level 1' after visiting 13 component(s)
+[Console] Operator Naidoo executes: Restrict Library Level 1 to StaffOnly
+  [AccessControl] Restrict Floor 'Library Level 1' to StaffOnly
+    [Composite] Floor 'Library Level 1': restrict(StaffOnly) forwarded to 1 child component(s)
+      [Legacy DX-9] >> PNL#203 OP:R CLR:3 << RC:00
+      [Adapter] restrictDoor("ML-1-ARCHIVE") => transmit(203, 'R', 3) => RC 0 OK => true
+  [AccessControl] restrict of 'Library Level 1': 1/1 doors confirmed by gateway
+[Console] Recorded as action 3: Restrict Library Level 1 to StaffOnly
+
+>> 2. Smoke detected: one Facade call runs the whole fire workflow across four subsystems
+[Facade] respondToFire("Library") started
+  [AccessControl] AreaDepthFirstIterator found 'Library' after visiting 9 component(s)
+  [Facade] Step 1/5 IncidentRegistry.report
+  [IncidentRegistry] Registered #2 Fire at Library | severity Critical | status Reported | units: none | Smoke detected in the Level 1 archive
+  [Facade] Step 2/5 AlertService.activateAlert
+  [AlertService] Emergency alert #2 ACTIVE in Library: Fire alarm: leave Library immediately
+  [Facade] Step 3/5 AlertService.issueEvacuation
+  [AlertService] EVACUATION ordered for Library: all occupants leave by the nearest exit
+  [Mediator] EmergencyCoordinator received EvacuationIssued from AlertService for incident #2 Fire
+    [Mediator] Rule: evacuation -> unlock every door in Library for egress
+    [AccessControl] Release Building 'Library'
+      [Composite] Building 'Library': unlock forwarded to 2 child component(s)
+        [Composite] Floor 'Library Ground': unlock forwarded to 2 child component(s)
+          [Legacy DX-9] >> PNL#201 OP:U CLR:0 << RC:00
+          [Adapter] releaseDoor("ML-G-MAIN") => transmit(201, 'U', 0) => RC 0 OK => true
+          [Legacy DX-9] >> PNL#202 OP:U CLR:0 << RC:00
+          [Adapter] releaseDoor("ML-G-FIRE") => transmit(202, 'U', 0) => RC 0 OK => true
+        [Composite] Floor 'Library Level 1': unlock forwarded to 1 child component(s)
+          [Legacy DX-9] >> PNL#203 OP:U CLR:0 << RC:00
+          [Adapter] releaseDoor("ML-1-ARCHIVE") => transmit(203, 'U', 0) => RC 0 OK => true
+    [AccessControl] unlock of 'Library': 3/3 doors confirmed by gateway
+  [Facade] Step 4/5 DispatchService.dispatchAvailable(Facilities)
+  [DispatchService] AvailableUnitIterator selected Delta; dispatched to incident #2 Fire
+  [Mediator] EmergencyCoordinator received UnitDispatched from DispatchService for incident #2 Fire
+    [IncidentRegistry] Incident #2 Fire status Reported -> Dispatched
+    [AlertService] Broadcast to Library: Delta (Facilities) en route to incident #2 Fire
+  [Facade] Step 5/5 DispatchService.dispatchAvailable(Medical)
+  [DispatchService] AvailableUnitIterator selected Medic-1; dispatched to incident #2 Fire
+  [Mediator] EmergencyCoordinator received UnitDispatched from DispatchService for incident #2 Fire
+    [AlertService] Broadcast to Library: Medic-1 (Medical) en route to incident #2 Fire
+  [Facade] respondToFire complete: #2 Fire at Library | severity Critical | status Dispatched | units: Delta, Medic-1 | Smoke detected in the Level 1 archive
+
+>> 3. Smoke drifts towards the Student Centre; operator issues an evacuation command
+[AccessControl] AreaDepthFirstIterator found 'Student Centre' after visiting 15 component(s)
+[Console] Operator Naidoo executes: Issue evacuation of Student Centre for incident #2 Fire
+  [AlertService] EVACUATION ordered for Student Centre: all occupants leave by the nearest exit
+  [Mediator] EmergencyCoordinator received EvacuationIssued from AlertService for incident #2 Fire
+    [Mediator] Rule: evacuation -> unlock every door in Student Centre for egress
+    [AccessControl] Release Building 'Student Centre'
+      [Composite] Building 'Student Centre': unlock forwarded to 1 child component(s)
+        [Composite] Floor 'Student Centre Ground': unlock forwarded to 2 child component(s)
+          [Legacy DX-9] >> PNL#301 OP:U CLR:0 << RC:00
+          [Adapter] releaseDoor("SC-G-MAIN") => transmit(301, 'U', 0) => RC 0 OK => true
+          [Legacy DX-9] >> PNL#302 OP:U CLR:0 << RC:00
+          [Adapter] releaseDoor("SC-G-CLINIC") => transmit(302, 'U', 0) => RC 0 OK => true
+    [AccessControl] unlock of 'Student Centre': 2/2 doors confirmed by gateway
+[Console] Recorded as action 4: Issue evacuation of Student Centre for incident #2 Fire
+
+>> 4. A student collapses at the Student Centre clinic entrance
+[AccessControl] AreaDepthFirstIterator found 'Student Centre Ground' after visiting 16 component(s)
+[IncidentRegistry] Registered #3 Medical at Student Centre Ground | severity High | status Reported | units: none | Student collapsed during evacuation
+[Console] Operator Naidoo executes: Dispatch Medical unit to incident #3 Medical
+  [DispatchService] AvailableUnitIterator selected Medic-2; dispatched to incident #3 Medical
+  [Mediator] EmergencyCoordinator received UnitDispatched from DispatchService for incident #3 Medical
+    [IncidentRegistry] Incident #3 Medical status Reported -> Dispatched
+    [AlertService] Broadcast to Student Centre Ground: Medic-2 (Medical) en route to incident #3 Medical
+[Console] Recorded as action 5: Dispatch Medical unit to incident #3 Medical [Medic-2]
+
+>> 5. Patient deteriorates: escalation to Critical (mediator needs a backup medic that does not exist)
+[IncidentRegistry] Incident #3 Medical severity High -> Critical
+[Mediator] EmergencyCoordinator received IncidentEscalated from IncidentRegistry for incident #3 Medical
+  [Mediator] Rule: critical escalation -> emergency alert + backup medical unit
+  [AlertService] Emergency alert #3 ACTIVE in Student Centre Ground: Incident #3 Medical is CRITICAL; keep access routes clear
+  [Mediator] Backup dispatch impossible (no available Medical unit on the roster); falling back to external EMS
+  [AlertService] Broadcast to Student Centre Ground: External EMS requested for incident #3 Medical
+
+>> 6. Invalid request: operator tries to dispatch security to the closed Engineering incident
+[Console] Operator Naidoo executes: Dispatch Security unit to incident #1 Intrusion
+  [Console] REJECTED, nothing recorded: incident #1 Intrusion is Resolved; dispatch refused
+
+>> 7. Situation report through the Facade
+[Facade] situationReport()
+  [IncidentRegistry] 3 incident(s) on record:
+    [Incident] #1 Intrusion at Engineering | severity High | status Resolved | units: none | Forced-entry alarm at the server room
+    [Incident] #2 Fire at Library | severity Critical | status Dispatched | units: Delta, Medic-1 | Smoke detected in the Level 1 archive
+    [Incident] #3 Medical at Student Centre Ground | severity Critical | status Dispatched | units: Medic-2 | Student collapsed during evacuation
+  [DispatchService] Unit roster (RosterIterator):
+    [Unit] Alpha (Security): available
+    [Unit] Bravo (Security): available
+    [Unit] Medic-1 (Medical): assigned to incident #2 Fire
+    [Unit] Medic-2 (Medical): assigned to incident #3 Medical
+    [Unit] Delta (Facilities): assigned to incident #2 Fire
+  [AlertService] 2 active alert(s), 2 evacuation(s) in progress
+    [Alert] #2 Emergency in Library: Fire alarm: leave Library immediately
+    [Alert] #3 Emergency in Student Centre Ground: Incident #3 Medical is CRITICAL; keep access routes clear
+    [Evacuation] Library (incident #2 Fire)
+    [Evacuation] Student Centre (incident #2 Fire)
+  [AccessControl] Access report for 'Hatfield Campus' (AreaDepthFirstIterator):
+    [Area] Campus Hatfield Campus: 0/9 doors secured
+    [Area]   Building Engineering: 0/4 doors secured
+    [Area]     Floor Engineering Ground: 0/2 doors secured
+    [Area]       Door EB-G-MAIN: UNLOCKED
+    [Area]       Door EB-G-EAST: UNLOCKED
+    [Area]     Floor Engineering Level 1: 0/2 doors secured
+    [Area]       Door EB-1-LAB: UNLOCKED
+    [Area]       Door EB-1-SERVER: UNLOCKED
+    [Area]   Building Library: 0/3 doors secured
+    [Area]     Floor Library Ground: 0/2 doors secured
+    [Area]       Door ML-G-MAIN: UNLOCKED
+    [Area]       Door ML-G-FIRE: UNLOCKED
+    [Area]     Floor Library Level 1: 0/1 doors secured
+    [Area]       Door ML-1-ARCHIVE: UNLOCKED
+    [Area]   Building Student Centre: 0/2 doors secured
+    [Area]     Floor Student Centre Ground: 0/2 doors secured
+    [Area]       Door SC-G-MAIN: UNLOCKED
+    [Area]       Door SC-G-CLINIC: UNLOCKED
+
+>> 8. Paramedics hand over; Facade stands down the medical incident
+[Facade] standDown(#3 Medical) started
+  [Facade] Step 1/3 IncidentRegistry.contain
+  [IncidentRegistry] Incident #3 Medical status Dispatched -> Contained
+  [Facade] Step 2/3 IncidentRegistry.resolve
+  [IncidentRegistry] Incident #3 Medical status Contained -> Resolved
+  [Mediator] EmergencyCoordinator received IncidentResolved from IncidentRegistry for incident #3 Medical
+    [Mediator] Rule: resolution -> release units, reopen area, clear alerts, all-clear
+    [DispatchService] Medic-2 released and available again
+    [AlertService] Cleared 1 alert(s) and 0 evacuation order(s) linked to incident #3 Medical
+    [AlertService] Broadcast to Student Centre Ground: ALL CLEAR for incident #3 Medical
+  [Facade] Step 3/3 AccessControlService.printAccessReport
+  [AccessControl] Access report for 'Student Centre Ground' (AreaDepthFirstIterator):
+    [Area] Floor Student Centre Ground: 0/2 doors secured
+    [Area]   Door SC-G-MAIN: UNLOCKED
+    [Area]   Door SC-G-CLINIC: UNLOCKED
+
+>> 9. Fire service declares the Library safe; Facade stands down the fire
+[Facade] standDown(#2 Fire) started
+  [Facade] Step 1/3 IncidentRegistry.contain
+  [IncidentRegistry] Incident #2 Fire status Dispatched -> Contained
+  [Facade] Step 2/3 IncidentRegistry.resolve
+  [IncidentRegistry] Incident #2 Fire status Contained -> Resolved
+  [Mediator] EmergencyCoordinator received IncidentResolved from IncidentRegistry for incident #2 Fire
+    [Mediator] Rule: resolution -> release units, reopen area, clear alerts, all-clear
+    [DispatchService] Delta released and available again
+    [DispatchService] Medic-1 released and available again
+    [AlertService] Cleared 1 alert(s) and 2 evacuation order(s) linked to incident #2 Fire
+    [AlertService] Broadcast to Library: ALL CLEAR for incident #2 Fire
+  [Facade] Step 3/3 AccessControlService.printAccessReport
+  [AccessControl] Access report for 'Library' (AreaDepthFirstIterator):
+    [Area] Building Library: 0/3 doors secured
+    [Area]   Floor Library Ground: 0/2 doors secured
+    [Area]     Door ML-G-MAIN: UNLOCKED
+    [Area]     Door ML-G-FIRE: UNLOCKED
+    [Area]   Floor Library Level 1: 0/1 doors secured
+    [Area]     Door ML-1-ARCHIVE: UNLOCKED
+
+>> 10. Invalid request: operator tries to cancel the medical dispatch after stand-down
+[Console] Operator Naidoo cancels: Dispatch Medical unit to incident #3 Medical [Medic-2]
+  [Console] CANCEL REFUSED, action kept in history: incident #3 Medical is closed; its dispatch history is final
+[Console] Action history for Operator Naidoo:
+  [History] 1. Dispatch Security unit to incident #1 Intrusion [Alpha]
+  [History] 2. Activate Warning alert in Engineering
+  [History] 3. Restrict Library Level 1 to StaffOnly
+  [History] 4. Issue evacuation of Student Centre for incident #2 Fire
+  [History] 5. Dispatch Medical unit to incident #3 Medical [Medic-2]
+
+>> 11. Final situation report
+[Facade] situationReport()
+  [IncidentRegistry] 3 incident(s) on record:
+    [Incident] #1 Intrusion at Engineering | severity High | status Resolved | units: none | Forced-entry alarm at the server room
+    [Incident] #2 Fire at Library | severity Critical | status Resolved | units: none | Smoke detected in the Level 1 archive
+    [Incident] #3 Medical at Student Centre Ground | severity Critical | status Resolved | units: none | Student collapsed during evacuation
+  [DispatchService] Unit roster (RosterIterator):
+    [Unit] Alpha (Security): available
+    [Unit] Bravo (Security): available
+    [Unit] Medic-1 (Medical): available
+    [Unit] Medic-2 (Medical): available
+    [Unit] Delta (Facilities): available
+  [AlertService] 0 active alert(s), 0 evacuation(s) in progress
+  [AccessControl] Access report for 'Hatfield Campus' (AreaDepthFirstIterator):
+    [Area] Campus Hatfield Campus: 0/9 doors secured
+    [Area]   Building Engineering: 0/4 doors secured
+    [Area]     Floor Engineering Ground: 0/2 doors secured
+    [Area]       Door EB-G-MAIN: UNLOCKED
+    [Area]       Door EB-G-EAST: UNLOCKED
+    [Area]     Floor Engineering Level 1: 0/2 doors secured
+    [Area]       Door EB-1-LAB: UNLOCKED
+    [Area]       Door EB-1-SERVER: UNLOCKED
+    [Area]   Building Library: 0/3 doors secured
+    [Area]     Floor Library Ground: 0/2 doors secured
+    [Area]       Door ML-G-MAIN: UNLOCKED
+    [Area]       Door ML-G-FIRE: UNLOCKED
+    [Area]     Floor Library Level 1: 0/1 doors secured
+    [Area]       Door ML-1-ARCHIVE: UNLOCKED
+    [Area]   Building Student Centre: 0/2 doors secured
+    [Area]     Floor Student Centre Ground: 0/2 doors secured
+    [Area]       Door SC-G-MAIN: UNLOCKED
+    [Area]       Door SC-G-CLINIC: UNLOCKED

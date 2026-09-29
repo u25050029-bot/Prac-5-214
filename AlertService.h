@@ -37,6 +37,7 @@ private:
         Incident* incident;
     };
 
+    bool isEvacuating(const AreaComponent* area) const;
     static void requireArea(const AreaComponent* area);
 
     std::vector<ActiveAlert> alerts_;
